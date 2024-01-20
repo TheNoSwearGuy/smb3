@@ -105,7 +105,6 @@ PPU_CTL1	= $2000		; Write only
 PPU_CTL2	= $2001		; Write only
 
 ;	PPU_STAT:
-;	4: if set, can write to VRAM, else writes ignored
 ;	5: if set, sprite overflow occurred on scanline
 ;	6: Set if any non-transparent pixel of sprite 0 is overlapping a non-transparent pixel of BG
 ;	7: VBlank is occurring (cleared after read)
@@ -308,12 +307,12 @@ MMC3_1K_TO_PPU_1800	= %01000100	; 4
 MMC3_1K_TO_PPU_1C00	= %01000101	; 5
 MMC3_8K_TO_PRG_C000	= %01000110	; 6
 MMC3_8K_TO_PRG_A000	= %01000111	; 7
-MMC3_PPU_XOR_1000	= %10000000
+MMC3_PPU_XOR_1000	= %10000000 ; Unused.
 
 
 MMC3_COMMAND	= $8000	; consult ref
 MMC3_PAGE  	= $8001	; page number to MMC3_COMMAND
-MMC3_MIRROR	= $A000	; bit 0 clear is horizontal mirroring, bit 0 set is vertical mirroring
+MMC3_MIRROR	= $A000	; bit 0 clear is vertical mirroring, bit 0 set is horizontal mirroring
 MMC3_SRAM_EN	= $A001	; bit 7 set to enable SRAM at $6000-$7FFF
 MMC3_IRQCNT	= $C000 ; Countdown to an IRQ
 MMC3_IRQLATCH	= $C001 ; Store a temp val to be copied to MMC3_IRQCNT later
@@ -335,39 +334,39 @@ MMC3_IRQENABLE	= $E001 ; Enables IRQ generation
 	.data		; SB: Using .data instead of .zp to export labels
 	.org $00
 
-; For clarification, none of the other "Temp" vars are damaged by NMI,
-; the NMI does employ Temp_Var1-3, and restores them when it's done.
+; For clarification, none of the other "Temp" vars ($00-$0F) are damaged by NMI,
+; the NMI does employ Temp_Var1-3 ($00-$02), and restores them when it's done.
 
-	Temp_Var1:		.ds 1	; Temporary storage variable (protected from damage by NMI)
-	Temp_Var2:		.ds 1	; Temporary storage variable (protected from damage by NMI)
-	Temp_Var3:		.ds 1	; Temporary storage variable (protected from damage by NMI)
-	Temp_Var4:		.ds 1	; Temporary storage variable
-	Temp_Var5:		.ds 1	; Temporary storage variable
-	Temp_Var6:		.ds 1	; Temporary storage variable
-	Temp_Var7:		.ds 1	; Temporary storage variable
-	Temp_Var8:		.ds 1	; Temporary storage variable
-	Temp_Var9:		.ds 1	; Temporary storage variable
-	Temp_Var10:		.ds 1	; Temporary storage variable
-	Temp_Var11:		.ds 1	; Temporary storage variable
-	Temp_Var12:		.ds 1	; Temporary storage variable
-	Temp_Var13:		.ds 1	; Temporary storage variable
-	Temp_Var14:		.ds 1	; Temporary storage variable
-	Temp_Var15:		.ds 1	; Temporary storage variable
-	Temp_Var16:		.ds 1	; Temporary storage variable
+	Temp_Var1:		.ds 1	; $00 Temporary storage variable (protected from damage by NMI)
+	Temp_Var2:		.ds 1	; $01 Temporary storage variable (protected from damage by NMI)
+	Temp_Var3:		.ds 1	; $02 Temporary storage variable (protected from damage by NMI)
+	Temp_Var4:		.ds 1	; $03 Temporary storage variable
+	Temp_Var5:		.ds 1	; $04 Temporary storage variable
+	Temp_Var6:		.ds 1	; $05 Temporary storage variable
+	Temp_Var7:		.ds 1	; $06 Temporary storage variable
+	Temp_Var8:		.ds 1	; $07 Temporary storage variable
+	Temp_Var9:		.ds 1	; $08 Temporary storage variable
+	Temp_Var10:		.ds 1	; $09 Temporary storage variable
+	Temp_Var11:		.ds 1	; $0A Temporary storage variable
+	Temp_Var12:		.ds 1	; $0B Temporary storage variable
+	Temp_Var13:		.ds 1	; $0C Temporary storage variable
+	Temp_Var14:		.ds 1	; $0D Temporary storage variable
+	Temp_Var15:		.ds 1	; $0E Temporary storage variable
+	Temp_Var16:		.ds 1	; $0F Temporary storage variable
 
-	VBlank_Tick:		.ds 1	; can be used for timing, or knowing when an NMI just fired off
+	VBlank_Tick:		.ds 1	; $10 can be used for timing, or knowing when an NMI just fired off
 
 				.ds 1	; $11 unused
 
-	Horz_Scroll_Hi:		.ds 1	; Provides a "High" byte for horizontally scrolling, or could be phrased as "current screen"
-	PPU_CTL1_Mod:		; NOT DURING GAMEPLAY, this is used as an additional modifier to PPU_CTL1
-	Vert_Scroll_Hi:		.ds 1	; Provides a "High" byte for vertically scrolling (only used during vertical levels!)
+	Horz_Scroll_Hi:		.ds 1	; $12 Provides a "High" byte for horizontally scrolling, or could be phrased as "current screen"
+	PPU_CTL1_Mod:		; $13 NOT DURING GAMEPLAY, this is used as an additional modifier to PPU_CTL1
+	Vert_Scroll_Hi:		.ds 1	; $13 Provides a "High" byte for vertically scrolling (only used during vertical levels!)
 
-	Level_ExitToMap:	.ds 1	; When non-zero, kicks back to map (OR to event when Player_FallToKing or Player_RescuePrincess is nonzero!)
+	Level_ExitToMap:	.ds 1	; $14 When non-zero, kicks back to map (OR to event when Player_FallToKing or Player_RescuePrincess is nonzero!)
 
-	Counter_1:		.ds 1	; This value simply increments every frame, used for timing various things
+	Counter_1:		.ds 1	; $15 This value simply increments every frame, used for timing various things
 
-	PPU_CTL2_Copy:		.ds 1	; Essentially a copy of PPU_CTL2, which updates it as well, though the sprite/BG visibility setting is usually (always?) forced on
+	PPU_CTL2_Copy:		.ds 1	; $16 Essentially a copy of PPU_CTL2, which updates it as well, though the sprite/BG visibility setting is usually (always?) forced on
 
 PAD_A		= $80
 PAD_B		= $40
@@ -378,10 +377,10 @@ PAD_DOWN	= $04
 PAD_LEFT	= $02
 PAD_RIGHT	= $01
 
-	Pad_Holding:		.ds 1	; Active player's inputs (i.e. 1P or 2P, whoever's playing) buttons being held in (continuous)
-	Pad_Input:		.ds 1	; Active player's inputs (i.e. 1P or 2P, whoever's playing) buttons newly pressed only (one shot)
+	Pad_Holding:		.ds 1	; $17 Active player's inputs (i.e. 1P or 2P, whoever's playing) buttons being held in (continuous)
+	Pad_Input:		.ds 1	; $18 Active player's inputs (i.e. 1P or 2P, whoever's playing) buttons newly pressed only (one shot)
 
-	Roulette_RowIdx:	.ds 1	; Roulette Bonus Game only obviously
+	Roulette_RowIdx:	.ds 1	; $19 Roulette Bonus Game only obviously
 
 ; Pal_Force_Set12:
 ; This overrides the normal palette routine of selecting by Level_Tileset and 
@@ -389,28 +388,28 @@ PAD_RIGHT	= $01
 ; Pal_Force_Set12 to a non-zero value will select as the index instead of
 ; Level_Tileset, and then it will copy the first two sets of 16 colors from
 ; the palette data as bg / sprite colors.  FIXME is this used though??
-	Pal_Force_Set12:	.ds 1
+	Pal_Force_Set12:	.ds 1	; $1A
 
-	PlantInfest_ACnt:	.ds 1	; Plant infestation level animation counter
+	PlantInfest_ACnt:	.ds 1	; $1B Plant infestation level animation counter
 
-	VBlank_TickEn:		.ds 1	; Enables the VBlank_Tick decrement and typically other things like joypad reading
+	VBlank_TickEn:		.ds 1	; $1C Enables the VBlank_Tick decrement and typically other things like joypad reading
 
-	Map_Enter2PFlag:	.ds 1	; If $00, entering level, otherwise set if entering 2P VS mode
+	Map_Enter2PFlag:	.ds 1	; $1D If $00, entering level, otherwise set if entering 2P VS mode
 
 
-	Map_EnterViaID:		.ds 1	; Overrides whatever spot on the map you entered with something special (see Map_DoEnterViaID)
+	Map_EnterViaID:		.ds 1	; $1E Overrides whatever spot on the map you entered with something special (see Map_DoEnterViaID)
 
 				.ds 1	; $1F unused
 
 	; $20 has a lot of different uses on the World Map...
-	Map_EnterLevelFX:		; When entering a level on the map, dictates the status of the entry (0=None, 1=Boxing in, 2=Boxing out [J only]) NOTE: Overlap/reuse
-	Map_IntBoxErase:		; Used for determining where in erasing the "World X" intro box we are NOTE: Overlap/reuse
-	Map_ClearLevelFXCnt:		; Counter for "clear level" FX occurring (1-6: Poof, 7-9: Flip) ("poof"/"panel flip") NOTE: Overlap/reuse
-	Map_ScrollOddEven:	.ds 1	; Toggles odd/even column as it scrolls
+	Map_EnterLevelFX:		; $20 When entering a level on the map, dictates the status of the entry (0=None, 1=Boxing in, 2=Boxing out [J only]) NOTE: Overlap/reuse
+	Map_IntBoxErase:		; $20 Used for determining where in erasing the "World X" intro box we are NOTE: Overlap/reuse
+	Map_ClearLevelFXCnt:		; $20 Counter for "clear level" FX occurring (1-6: Poof, 7-9: Flip) ("poof"/"panel flip") NOTE: Overlap/reuse
+	Map_ScrollOddEven:	.ds 1	; $20 Toggles odd/even column as it scrolls
 
 				.ds 1	; $21 unused
 
-	Level_Width:		.ds 1	; Width of current level, in screens (0 = don't move at all, max is 15H/16V)
+	Level_Width:		.ds 1	; $22 Width of current level, in screens (0 = don't move at all, max is 15H/16V)
 
 	; In horizontal "typical" levels, Scroll_ColumnR/L are a column and
 	; levels are rendered in vertical stripes by these start points
@@ -425,55 +424,55 @@ PAD_RIGHT	= $01
 
 	Scroll_ColorStrip: 	.ds 54	; $25-$5A This stores a strip of just the upper 2 bits of a tile ($00, $40, $80, $C0) to produce attribute info
 
-	Scroll_LastDir:		.ds 1	; 0=screen last moved right (or up, if vertical), 1=screen last moved left (or down, if vertical)
+	Scroll_LastDir:		.ds 1	; $5B 0=screen last moved right (or up, if vertical), 1=screen last moved left (or down, if vertical)
 
-	Scroll_RightUpd:		; Indicates every 8 pixels update going to the right, or $FF if screen moves left
-	Scroll_VertUpd:		.ds 1	; Indicates every 8 pixels update up or down, in vertical levels
+	Scroll_RightUpd:		; $5C Indicates every 8 pixels update going to the right, or $FF if screen moves left
+	Scroll_VertUpd:		.ds 1	; $5C Indicates every 8 pixels update up or down, in vertical levels
 
-	Scroll_LeftUpd:		.ds 1	; Indicates every 8 pixels update going to the left, or $FF if screen moves right
+	Scroll_LeftUpd:		.ds 1	; $5D Indicates every 8 pixels update going to the left, or $FF if screen moves right
 
 	; Prepares to perform a Video_Update when possible, indexes the "Video_Upd_Table" 
 	; in PRG030 OR Video_Upd_Table2 in PRG025 (whichever is currently in context)
 	; Also resets the graphics buffer afterward, since the RAM buffer is
 	; constantly being called to possibly perform its own updates after this value
 	; resets to zero.
-	Graphics_Queue:		.ds 1
+	Graphics_Queue:		.ds 1	; $5E
 
 				.ds 1	; $5F unused
 				.ds 1	; $60 unused
 
-	Level_LayPtr_AddrL:	.ds 1	; Low byte of address to tile layout (ORIGINAL stored in Level_LayPtrOrig_AddrL)
-	Level_LayPtr_AddrH:	.ds 1	; High byte of address to tile layout (ORIGINAL stored in Level_LayPtrOrig_AddrH)
+	Level_LayPtr_AddrL:	.ds 1	; $61 Low byte of address to tile layout (ORIGINAL stored in Level_LayPtrOrig_AddrL)
+	Level_LayPtr_AddrH:	.ds 1	; $62 High byte of address to tile layout (ORIGINAL stored in Level_LayPtrOrig_AddrH)
 
 			; Typical use pair at $63/$64
-	Map_Tile_AddrL:		.ds 1	; Low byte of tile address
-	Map_Tile_AddrH:		.ds 1	; High byte of tile address
+	Map_Tile_AddrL:		.ds 1	; $63 Low byte of tile address
+	Map_Tile_AddrH:		.ds 1	; $64 High byte of tile address
 
 
 	.org $63	; NOTE, the following two are also $63/$64, bonus game context
-	BonusText_BaseL:	.ds 1	; Instruction text base address low
-	BonusText_BaseH:	.ds 1	; Instruction text base address high
+	BonusText_BaseL:	.ds 1	; $63 Instruction text base address low
+	BonusText_BaseH:	.ds 1	; $64 Instruction text base address high
 
 
-	Level_ObjPtr_AddrL:	.ds 1	; Low byte of address to object set (ORIGINAL stored in Level_ObjPtrOrig_AddrL)
-	Level_ObjPtr_AddrH:	.ds 1	; High byte of address to object set (ORIGINAL stored in Level_ObjPtrOrig_AddrH)
+	Level_ObjPtr_AddrL:	.ds 1	; $65 Low byte of address to object set (ORIGINAL stored in Level_ObjPtrOrig_AddrL)
+	Level_ObjPtr_AddrH:	.ds 1	; $66 High byte of address to object set (ORIGINAL stored in Level_ObjPtrOrig_AddrH)
 
 				.ds 1	; $67 unused
 				.ds 1	; $68 unused
 
-	Video_Upd_AddrL:	.ds 1	; Video_Misc_Updates routine uses this as an address, low byte
-	Video_Upd_AddrH:	.ds 1	; Video_Misc_Updates routine uses this as an address, hi byte
-	Music_Base_L:		.ds 1	; Current music segment base address low byte
-	Music_Base_H:		.ds 1	; Current music segment base address high byte
+	Video_Upd_AddrL:	.ds 1	; $69 Video_Misc_Updates routine uses this as an address, low byte
+	Video_Upd_AddrH:	.ds 1	; $6A Video_Misc_Updates routine uses this as an address, hi byte
+	Music_Base_L:		.ds 1	; $6B Current music segment base address low byte
+	Music_Base_H:		.ds 1	; $6C Current music segment base address high byte
 
-	Sound_Sqr_FreqL:	.ds 1	; Calculated square wave frequency for Note On (low byte)
-	Sound_Sqr_FreqH:	.ds 1	; Calculated square wave frequency for Note On (high byte)
-	Sound_Map_EntrV:	.ds 1	; Current index into the volume ramp-down table used exclusively for the "level enter" sound
-	Sound_Map_EntV2:	.ds 1	; Same as Sound_Map_EntrV, only for the second track
+	Sound_Sqr_FreqL:	.ds 1	; $6D Calculated square wave frequency for Note On (low byte)
+	Sound_Sqr_FreqH:	.ds 1	; $6E Calculated square wave frequency for Note On (high byte)
+	Sound_Map_EntrV:	.ds 1	; $6F Current index into the volume ramp-down table used exclusively for the "level enter" sound
+	Sound_Map_EntV2:	.ds 1	; $70 Same as Sound_Map_EntrV, only for the second track
 
-	Music_PatchAdrL:	.ds 1	; Music current patch address low byte
-	Music_PatchAdrH:	.ds 1	; Music current patch address high byte
-	Sound_Map_Off:		.ds 1	; Current "offset" within a map sound effect
+	Music_PatchAdrL:	.ds 1	; $71 Music current patch address low byte
+	Music_PatchAdrH:	.ds 1	; $72 Music current patch address high byte
+	Sound_Map_Off:		.ds 1	; $73 Current "offset" within a map sound effect
 
 	; ASSEMBLER BOUNDARY CHECK, END OF ZERO PAGE PRE CONTEXT @ $74
 .BoundZP_PreCtx:	BoundCheck .BoundZP_PreCtx, $74, Zero Page
@@ -481,23 +480,23 @@ PAD_RIGHT	= $01
 	; NOTE: $75 - $F3 are context specific; see contexts below
 
 	.org $F4
-	Scroll_OddEven:		.ds 1	; 0 or 1, depending on what part of 8 pixels has crossed (need better description)
+	Scroll_OddEven:		.ds 1	; $F4 0 or 1, depending on what part of 8 pixels has crossed (need better description)
 
-	Controller1Press:	.ds 1	; Player 1's controller "pressed this frame only" (see Controller1 for values)
-	Controller2Press:	.ds 1	; Player 2's controller "pressed this frame only" (see Controller2 for values)
-	Controller1:		.ds 1	; Player 1's controller inputs -- R01 L02 D04 U08 S10 E20 B40 A80
-	Controller2:		.ds 1	; Player 2's controller inputs -- R01 L02 D04 U08 S10 E20 B40 A80
+	Controller1Press:	.ds 1	; $F5 Player 1's controller "pressed this frame only" (see Controller1 for values)
+	Controller2Press:	.ds 1	; $F6 Player 2's controller "pressed this frame only" (see Controller2 for values)
+	Controller1:		.ds 1	; $F7 Player 1's controller inputs -- R01 L02 D04 U08 S10 E20 B40 A80
+	Controller2:		.ds 1	; $F8 Player 2's controller inputs -- R01 L02 D04 U08 S10 E20 B40 A80
 
 				.ds 1	; $F9 unused
 				.ds 1	; $FA unused
 				.ds 1	; $FB unused
 
-	Vert_Scroll:		.ds 1	; Vertical scroll of name table; typically at $EF (239, basically showing the bottom half)
-	Horz_Scroll:		.ds 1	; Horizontal scroll of name table
+	Vert_Scroll:		.ds 1	; $FC Vertical scroll of name table; typically at $EF (239, basically showing the bottom half)
+	Horz_Scroll:		.ds 1	; $FD Horizontal scroll of name table
 
 				.ds 1	; $FE unused
 
-	PPU_CTL1_Copy:		.ds 1	; Holds PPU_CTL1 register data 
+	PPU_CTL1_Copy:		.ds 1	; $FF Holds PPU_CTL1 register data 
 
 	; ASSEMBLER BOUNDARY CHECK, END OF ZERO PAGE @ $100
 .BoundZP:	BoundCheck .BoundZP, $100, Zero Page
@@ -528,7 +527,7 @@ PAD_RIGHT	= $01
 	Title_YPosFrac:		.ds 8	; $AD-$B4 Y position extended precision of objects (provides 4-bit fixed point)
 	Title_ObjYVelChng:	.ds 2	; $B5-$B6 Mario / Luigi change in Y velocity flag
 	Title_ObjMLFlags:	.ds 2	; $B7-$B8 Mario / Luigi Sprite flags
-	Title_ObjMLMoveDir:	.ds 1	; 0 = No move, 1 = Left, 2 = Right
+	Title_ObjMLMoveDir:	.ds 1	; $B9 0 = No move, 1 = Left, 2 = Right
 				.ds 1	; $BA unused
 	Title_ObjMLAnimFrame:	.ds 2	; $BB-$BC Mario / Luigi animation frame
 	Title_ObjMLDirTicks:	.ds 2	; $BD-$BE Mario / Luigi animation ticks
@@ -540,31 +539,31 @@ PAD_RIGHT	= $01
 	Title_ObjMLHold:	.ds 2	; $C9-$CA Mario / Luigi holding something flag (when non-zero)
 	Title_ObjMLBonkTick:	.ds 2	; $CB-$CC Mario / Luigi use "bonked" frame while > 0
 	Title_ObjMLKickTick:	.ds 2	; $CD-$CE Mario / Luigi use kicking frame while > 0
-	Title_ObjMPowerDown:	.ds 1	; Mario power down animation counter
-	Title_ObjMLStop:	.ds 1	; Flag used briefly to "hold" Mario/Luigi from moving so they get a "running start"
-	Title_CurMLIndex:	.ds 1	; 0 for Mario, 1 for Luigi
+	Title_ObjMPowerDown:	.ds 1	; $CF Mario power down animation counter
+	Title_ObjMLStop:	.ds 1	; $D0 Flag used briefly to "hold" Mario/Luigi from moving so they get a "running start"
+	Title_CurMLIndex:	.ds 1	; $D1 0 for Mario, 1 for Luigi
 	Title_ObjFlags:		.ds 6	; $D2-$D7 Minor objects' sprite flags
 	Title_ObjStates:	.ds 6	; $D8-$DD Title screen array of states for the individual objects (NOT including Mario/Luigi)
-	Title_State:		.ds 1	; 00 = Prior to red curtain rise, 01 = Rising curtain...
-	Title_ResetCnt:		.ds 1	; Title reset counter -- when on the menu, once this hits zero, the title sequence restarts
-	Title_ResetCnt2:	.ds 1	; when this goes to zero, it decrements Title_ResetCnt
-	Title_ResetTrig:	.ds 1	; when non-zero, resets title screen
-	Title_UnusedFlag:	.ds 1	; doesn't seem to do anything useful but not do the "skip" state if Player presses START early on the title screen
-	Title_Ticker:		.ds 1	; Tick counter for title screen intro "movie"
-	Title_MActScriptPos:	.ds 1	; Offset within Mario's action script
-	Title_LActScriptPos:	.ds 1	; Offset within Luigi's action script
-	Title_MActScriptDelay:	.ds 1	; Mario's action script delay until next event
-	Title_LActScriptDelay:	.ds 1	; Luigi's action script delay until next event
-	Title_MActScriptDirSet:	.ds 1	; Mario's action script Buffer for last queue command (sets respective "Title_ObjMLDir" variable)
-	Title_LActScriptDirSet:	.ds 1	; Luigi's action script Buffer for last queue command (sets respective "Title_ObjMLDir" variable)
+	Title_State:		.ds 1	; $DE 00 = Prior to red curtain rise, 01 = Rising curtain...
+	Title_ResetCnt:		.ds 1	; $DF Title reset counter -- when on the menu, once this hits zero, the title sequence restarts
+	Title_ResetCnt2:	.ds 1	; $E0 when this goes to zero, it decrements Title_ResetCnt
+	Title_ResetTrig:	.ds 1	; $E1 when non-zero, resets title screen
+	Title_UnusedFlag:	.ds 1	; $E2 doesn't seem to do anything useful but not do the "skip" state if Player presses START early on the title screen
+	Title_Ticker:		.ds 1	; $E3 Tick counter for title screen intro "movie"
+	Title_MActScriptPos:	.ds 1	; $E4 Offset within Mario's action script
+	Title_LActScriptPos:	.ds 1	; $E5 Offset within Luigi's action script
+	Title_MActScriptDelay:	.ds 1	; $E6 Mario's action script delay until next event
+	Title_LActScriptDelay:	.ds 1	; $E7 Luigi's action script delay until next event
+	Title_MActScriptDirSet:	.ds 1	; $E8 Mario's action script Buffer for last queue command (sets respective "Title_ObjMLDir" variable)
+	Title_LActScriptDirSet:	.ds 1	; $E9 Luigi's action script Buffer for last queue command (sets respective "Title_ObjMLDir" variable)
 	Title_ObjMLDir:		.ds 2	; $EA-$EB Mario / Luigi vector direction bitfield (1 = Left, 2 = Right, 4 = Down, 8 = Up, $10 = Sprite behind BG, $80 = Tail wagging)
 	Title_ObjMLQueue:	.ds 2	; $EC-$ED Mario / Luigi queue to do something ($04 = Luigi's rebound off Mario, $10 = Kick shell, $20 = Begin carrying, $40 = Clear carry/bonk, do kick)
-	Title_EventIndex:	.ds 1	; Title background event index (dynamic jump index for events on the title 
-	Title_EventGrafX:	.ds 1	; Title background current graphic index to load (loads items from Video_Upd_Table2 in PRG025)
-	Title_ObjInitIdx:	.ds 1	; Current title screen "event" ID during the intro scene with Mario and Luigi
-	Title_ObjInitDly:	.ds 1	; Timer count before next object init
-	Title_3GlowFlag:	.ds 1	; When non-zero, begins the "glowing" effect for the big '3'
-	Title_3GlowIndex:	.ds 1	; Index into an array of colors to cause the big '3' on the title screen to glow
+	Title_EventIndex:	.ds 1	; $EE Title background event index (dynamic jump index for events on the title 
+	Title_EventGrafX:	.ds 1	; $EF Title background current graphic index to load (loads items from Video_Upd_Table2 in PRG025)
+	Title_ObjInitIdx:	.ds 1	; $F0 Current title screen "event" ID during the intro scene with Mario and Luigi
+	Title_ObjInitDly:	.ds 1	; $F1 Timer count before next object init
+	Title_3GlowFlag:	.ds 1	; $F2 When non-zero, begins the "glowing" effect for the big '3'
+	Title_3GlowIndex:	.ds 1	; $F3 Index into an array of colors to cause the big '3' on the title screen to glow
 
 	; ASSEMBLER BOUNDARY CHECK, END OF CONTEXT @ $F5
 .BoundZP_Title:	BoundCheck .BoundZP_Title, $F5, Zero Page Title Screen Context
@@ -574,30 +573,30 @@ PAD_RIGHT	= $01
 ; Basically don't assume anything here is free space without consulting above as well...
 
 	.org $75
-	Ending2_PicState:	.ds 1	; Ending part 2 picture loader state
-	Ending2_ClearLen:	.ds 1	; Length of clear run
-	Ending2_ClearPat:	.ds 1	; Pattern to clear the screen with
-	Ending2_PicVRAMH:	.ds 1	; Ending part 2 picture VRAM Hi
-	Ending2_PicVRAML:	.ds 1	; Ending part 2 picture VRAM Hi
-	Ending2_QCmdEnd:	.ds 1	; Ending2_QueueCmd is incremented to this point
-	Ending2_FadeTimer:	.ds 1	; Timer which controls the speed of the fade between worlds
-	Ending2_QueueCmd:	.ds 1	; incremented after posting, up to Ending2_QCmdEnd
-	Ending2_TimerH:		.ds 1	; Ending part 2 timer "high" part
-	Ending2_TimerL:		.ds 1	; Ending part 2 timer "low" part
-	Ending2_CurWorld:	.ds 1	; Current world we're showing (8 = THE END)
+	Ending2_PicState:	.ds 1	; $75 Ending part 2 picture loader state
+	Ending2_ClearLen:	.ds 1	; $76 Length of clear run
+	Ending2_ClearPat:	.ds 1	; $77 Pattern to clear the screen with
+	Ending2_PicVRAMH:	.ds 1	; $78 Ending part 2 picture VRAM Hi
+	Ending2_PicVRAML:	.ds 1	; $79 Ending part 2 picture VRAM Hi
+	Ending2_QCmdEnd:	.ds 1	; $7A Ending2_QueueCmd is incremented to this point
+	Ending2_FadeTimer:	.ds 1	; $7B Timer which controls the speed of the fade between worlds
+	Ending2_QueueCmd:	.ds 1	; $7C incremented after posting, up to Ending2_QCmdEnd
+	Ending2_TimerH:		.ds 1	; $7D Ending part 2 timer "high" part
+	Ending2_TimerL:		.ds 1	; $7E Ending part 2 timer "low" part
+	Ending2_CurWorld:	.ds 1	; $7F Current world we're showing (8 = THE END)
 
 	.org $D2
 	Ending_Timer:		.ds 2	; $D2-$D3 Twin ending timers, generally one for Mario and one for Princess
-	EndText_Timer:		.ds 1	; Timer used for the ending text display
-	Ending_State:		.ds 1	; Current state value for initial part of ending (the princess, prior to curtain)
+	EndText_Timer:		.ds 1	; $D4 Timer used for the ending text display
+	Ending_State:		.ds 1	; $D5 Current state value for initial part of ending (the princess, prior to curtain)
 
-	EndText_VL:		.ds 1	; Princess speech VRAM Address Low
-	EndText_VH:		.ds 1	; Princess speech VRAM Address High
-	EndText_CPos:		.ds 1	; Princess speech Character Position
-	EndText_State:		.ds 1	; Princess speech state variable
+	EndText_VL:		.ds 1	; $D6 Princess speech VRAM Address Low
+	EndText_VH:		.ds 1	; $D7 Princess speech VRAM Address High
+	EndText_CPos:		.ds 1	; $D8 Princess speech Character Position
+	EndText_State:		.ds 1	; $D9 Princess speech state variable
 
 	.org $F4
-	Ending2_IntCmd:		.ds 1	; used during ending to buffer out the ending picture data on the interrupt.  Triggers "Do_Ending2_IntCmd" in PRG024 in interrupt context.
+	Ending2_IntCmd:		.ds 1	; $F4 used during ending to buffer out the ending picture data on the interrupt.  Triggers "Do_Ending2_IntCmd" in PRG024 in interrupt context.
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -620,112 +619,112 @@ PAD_RIGHT	= $01
 	Map_UnusedPlayerVal2:	.ds 2	; $84-$85 (Mario/Luigi) Apparently unused at all, but backed up and persisted on the world map
 
 ; All the WarpWind vars are shared with the HandTrap; they share code, too...
-	Map_WWOrHT_Y:		.ds 1	; Warp Whistle wind or Hand Trap Y position
-	Map_HandTrap_XHi:	.ds 1	; Hand Trap X Hi (most vars are shared with warp wind, but technically not this one!)
-	Map_WWOrHT_X:		.ds 1	; Warp Whistle wind or Hand Trap X position
-	Map_WWOrHT_Cnt:		.ds 1	; Warp Whistle wind or Hand Trap counter 
-	Map_WWOrHT_Dir:		.ds 1	; Direction the Warp Whistle wind travels (0 = right, 1 = left)
+	Map_WWOrHT_Y:		.ds 1	; $86 Warp Whistle wind or Hand Trap Y position
+	Map_HandTrap_XHi:	.ds 1	; $87 Hand Trap X Hi (most vars are shared with warp wind, but technically not this one!)
+	Map_WWOrHT_X:		.ds 1	; $88 Warp Whistle wind or Hand Trap X position
+	Map_WWOrHT_Cnt:		.ds 1	; $89 Warp Whistle wind or Hand Trap counter 
+	Map_WWOrHT_Dir:		.ds 1	; $8A Direction the Warp Whistle wind travels (0 = right, 1 = left)
 
 	; Double use
-	Map_WarpWind_FX:		; 1 - 4 is the warp whistle effect
-	Map_StarFX_State:	.ds 1	; 0 - 2 NOTE: Shared with Map_WarpWind_FX
+	Map_WarpWind_FX:		; $8B 1 - 4 is the warp whistle effect
+	Map_StarFX_State:	.ds 1	; $8B 0 - 2 NOTE: Shared with Map_WarpWind_FX
 
-	World_Map_Twirl:	.ds 1	; If set, Mario is "twirling"
+	World_Map_Twirl:	.ds 1	; $8C If set, Mario is "twirling"
 
 				.ds 1	; $8D unused
 
 	; When Player is "skidding" backward (from death or "twirling" from game over continuation)
-	Map_Skid_DeltaY:	.ds 1	; Delta applied directly to Y
-	Map_Skid_DeltaFracY:	.ds 1	; Fractional delta Y
-	Map_Skid_FracY:		.ds 1	; Fractional Y accumulator
+	Map_Skid_DeltaY:	.ds 1	; $8E Delta applied directly to Y
+	Map_Skid_DeltaFracY:	.ds 1	; $8F Fractional delta Y
+	Map_Skid_FracY:		.ds 1	; $90 Fractional Y accumulator
 
 				.ds 1	; $91 unused
 
-	Map_Skid_DeltaX:	.ds 1	; Delta applied directly to X
-	Map_Skid_DeltaFracX:	.ds 1	; Fractional delta X
-	Map_Skid_FracX:		.ds 1	; Fractional X accumulator
-	Map_Skid_FracCarry:	.ds 1	; Fractional carry over accumulator (I think?)
-	Map_Skid_Count:		.ds 1	; Just a ticker controlling the display frame of the twirl
-	Map_Skid_Counter:	.ds 1
+	Map_Skid_DeltaX:	.ds 1	; $92 Delta applied directly to X
+	Map_Skid_DeltaFracX:	.ds 1	; $93 Fractional delta X
+	Map_Skid_FracX:		.ds 1	; $94 Fractional X accumulator
+	Map_Skid_FracCarry:	.ds 1	; $95 Fractional carry over accumulator (I think?)
+	Map_Skid_Count:		.ds 1	; $96 Just a ticker controlling the display frame of the twirl
+	Map_Skid_Counter:	.ds 1	; $97
 
 	; Map_Skid_TravDirs -- specifies which way Player must "twirl" to get to the destination
 	; Bit 0 Set = Player must travel to the right versus the left
 	; Bit 1 Set = Player must travel downward versus upward
-	Map_Skid_TravDirs:	.ds 1
+	Map_Skid_TravDirs:	.ds 1	; $98
 
 				.ds 1	; $99 unused
 				.ds 1	; $9A unused
 
 	Map_StarsX:		.ds 8	; $9B-$A2 During World Intro, X position of each star
 	Map_StarsY:		.ds 8	; $A3-$AA During World Intro, Y position of each star
-	Map_StarsOutRad:	.ds 1	; During World Intro, stars take off radius (0 = smallest, increments for larger)
+	Map_StarsOutRad:	.ds 1	; $AB During World Intro, stars take off radius (0 = smallest, increments for larger)
 
 				.ds 1	; $AC unused
 				.ds 1	; $AD unused
 				.ds 1	; $AE unused
 
-	Map_StarsXSteps:	.ds 1	; During World Intro, number of "steps" remaining in the X position adjustment
-	Map_StarsRadCnt:	.ds 1	; During World Intro, adds $70 per display frame and adds 1 to the radius when it overflows
-	Map_StarsCenterX:	.ds 1	; During World Intro, X center of stars 
-	Map_StarsCenterY:	.ds 1	; During World Intro, Y center of stars
-	Map_StarsDeltaR:	.ds 1	; During World Intro, delta to the star radii
-	Map_StarsConst9:	.ds 1	; During World Intro, ... Constant 9?
+	Map_StarsXSteps:	.ds 1	; $AF During World Intro, number of "steps" remaining in the X position adjustment
+	Map_StarsRadCnt:	.ds 1	; $B0 During World Intro, adds $70 per display frame and adds 1 to the radius when it overflows
+	Map_StarsCenterX:	.ds 1	; $B1 During World Intro, X center of stars 
+	Map_StarsCenterY:	.ds 1	; $B2 During World Intro, Y center of stars
+	Map_StarsDeltaR:	.ds 1	; $B3 During World Intro, delta to the star radii
+	Map_StarsConst9:	.ds 1	; $B4 During World Intro, ... Constant 9?
 
 				.ds 1	; $B5 unused
 
-	Map_StarsAnimCnt:	.ds 1	; During World Intro, a simple counter that adds 32 per frame and toggles Map_StarsFrame when it overflows
-	Map_StarsFrame:		.ds 1	; During World Intro, "frame" of stars (0/1)
-	Map_StarsPattern:	.ds 1	; During World Intro, stars current VROM pattern
-	Map_StarsLandRad:	.ds 1	; During World Intro, stars landing radius (0 = largest, increments for smaller)
-	Map_StarsYSteps:	.ds 1	; During World Intro, number of "steps" remaining in the Y position adjustment
+	Map_StarsAnimCnt:	.ds 1	; $B6 During World Intro, a simple counter that adds 32 per frame and toggles Map_StarsFrame when it overflows
+	Map_StarsFrame:		.ds 1	; $B7 During World Intro, "frame" of stars (0/1)
+	Map_StarsPattern:	.ds 1	; $B8 During World Intro, stars current VROM pattern
+	Map_StarsLandRad:	.ds 1	; $B9 During World Intro, stars landing radius (0 = largest, increments for smaller)
+	Map_StarsYSteps:	.ds 1	; $BA During World Intro, number of "steps" remaining in the Y position adjustment
 
 				.ds 1	; $BB unused
 
 	Map_StarsRadius:	.ds 8	; $BC-$C3 During World Intro, each star's "radius" position (each radius position is 0-31)
-	Map_StarsState:		.ds 1	; 0 = Stars coming out from center, 1 = Stars moving in towards Player start
-	Map_SkidBack:		.ds 1	; Player is skidding back (Map_Player_SkidBack stores whether they skidded on their last turn at all)
+	Map_StarsState:		.ds 1	; $C4 0 = Stars coming out from center, 1 = Stars moving in towards Player start
+	Map_SkidBack:		.ds 1	; $C5 Player is skidding back (Map_Player_SkidBack stores whether they skidded on their last turn at all)
 
 				.ds 1	; $C6 unused
 
-	Map_UnusedGOFlag:	.ds 1	; Set at map initialization or if Player gets Game Over and selects CONTINUE/END, no apparent purpose
+	Map_UnusedGOFlag:	.ds 1	; $C7 Set at map initialization or if Player gets Game Over and selects CONTINUE/END, no apparent purpose
 
 				.ds 1	; $C8 unused
 				.ds 1	; $C9 unused
 				.ds 1	; $CA unused
 				.ds 1	; $CB unused
 
-	Map_Intro_CurStripe:	.ds 1	; Current stripe of the "World X" intro box to be erased (0 - 7)
-	Map_Intro_NTOff:	.ds 1	; Offset into nametable for erasing the "World X" intro box
-	Map_Intro_ATOff:	.ds 1	; Offset into the attribute table for erasing the "World X" intro box
+	Map_Intro_CurStripe:	.ds 1	; $CC Current stripe of the "World X" intro box to be erased (0 - 7)
+	Map_Intro_NTOff:	.ds 1	; $CD Offset into nametable for erasing the "World X" intro box
+	Map_Intro_ATOff:	.ds 1	; $CE Offset into the attribute table for erasing the "World X" intro box
 
-	Map_Airship_DC:		.ds 1	; set to 1 when the Airship knows where it's going
-	Map_Airship_DY:		.ds 1	; Airship delta between current and target Y coordinate
-	Map_Airship_YNib:	.ds 1	; Map_Airship_DY shifts out its lower 4 bits as upper 4 bits to this value
-	Map_Airship_YAcc:	.ds 1	; Additional Y accumulator when traveling
-	Map_Airship_DXHi:	.ds 1	; Airship delta between current and target X Hi coordinate
-	Map_Airship_DX:		.ds 1	; Airship delta between current and target X coordinate
-	Map_Airship_XNib:	.ds 1	; Map_Airship_DXHi/Map_Airship_DX shifts out its lower 4 bits as upper 4 bits to this value
-	Map_Airship_Dir:	.ds 1	; Airship horizontal travel direction in bit 0, vertical direction in bit 1
-	Map_HideObj:		.ds 1	; used for completion)
+	Map_Airship_DC:		.ds 1	; $CF set to 1 when the Airship knows where it's going
+	Map_Airship_DY:		.ds 1	; $D0 Airship delta between current and target Y coordinate
+	Map_Airship_YNib:	.ds 1	; $D1 Map_Airship_DY shifts out its lower 4 bits as upper 4 bits to this value
+	Map_Airship_YAcc:	.ds 1	; $D2 Additional Y accumulator when traveling
+	Map_Airship_DXHi:	.ds 1	; $D3 Airship delta between current and target X Hi coordinate
+	Map_Airship_DX:		.ds 1	; $D4 Airship delta between current and target X coordinate
+	Map_Airship_XNib:	.ds 1	; $D5 Map_Airship_DXHi/Map_Airship_DX shifts out its lower 4 bits as upper 4 bits to this value
+	Map_Airship_Dir:	.ds 1	; $D6 Airship horizontal travel direction in bit 0, vertical direction in bit 1
+	Map_HideObj:		.ds 1	; $D7 used for completion)
 
-	MapPoof_Y:		.ds 1	; When using a power-up, "poof" appears at this Y coordinate
-	MapPoof_X:		.ds 1	; When using a power-up, "poof" appears at this X coordinate
-	Map_UseItem:		.ds 1	; Flag to signal that item is to be used
+	MapPoof_Y:		.ds 1	; $D8 When using a power-up, "poof" appears at this Y coordinate
+	MapPoof_X:		.ds 1	; $D9 When using a power-up, "poof" appears at this X coordinate
+	Map_UseItem:		.ds 1	; $DA Flag to signal that item is to be used
 
 				.ds 10	; $DB-$E4 unused
 
-	World_Map_Tile:		.ds 1	; Current tile index Mario is standing on
+	World_Map_Tile:		.ds 1	; $E5 Current tile index Mario is standing on
 
 				.ds 1	; $E6 unused
 				.ds 1	; $E7 unused
 				.ds 1	; $E8 unused
 
-	Scroll_Temp:		.ds 1	; Scroll hold value
+	Scroll_Temp:		.ds 1	; $E9 Scroll hold value
 
 				.ds 1	; $EA unused
 				.ds 1	; $EB unused
 
-	Player_WalkFrame:	.ds 1	; relative, not the same as Player_Frame
+	Player_WalkFrame:	.ds 1	; $EC relative, not the same as Player_Frame
 
 				.ds 7	; $ED-$F3 unused
 
@@ -740,14 +739,14 @@ PAD_RIGHT	= $01
 
 				.ds 22	; $75-$8A unused
 
-	BonusCoins_State:	.ds 1
+	BonusCoins_State:	.ds 1	; $8B
 
 				.ds 59	; $8C-$C6 unused
 
-	BonusDie_Y:		.ds 1	; UNUSED Bonus Game Die (1-6) Y position
-	BonusDie_X:		.ds 1	; UNUSED Bonus Game Die (1-6) X position
-	BonusDie_YVel:		.ds 1	; UNUSED Bonus Game Die Y Velocity (when it departs)
-	BonusDie_YVelFrac:	.ds 1	; UNUSED Bonus Game Die Y Velocity fractional accumulator
+	BonusDie_Y:		.ds 1	; $C7 UNUSED Bonus Game Die (1-6) Y position
+	BonusDie_X:		.ds 1	; $C8 UNUSED Bonus Game Die (1-6) X position
+	BonusDie_YVel:		.ds 1	; $C9 UNUSED Bonus Game Die Y Velocity (when it departs)
+	BonusDie_YVelFrac:	.ds 1	; $CA UNUSED Bonus Game Die Y Velocity fractional accumulator
 
 				.ds 41	; $CB-$F3 unused
 
@@ -760,8 +759,8 @@ PAD_RIGHT	= $01
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	.org $75	; $75-$F3 is available for this context-dependent situation
 
-	Vs_State:		.ds 1	; 2P Vs Mode state
-	Vs_IsPaused:		.ds 1	; If set, 2P Vs is paused
+	Vs_State:		.ds 1	; $75 2P Vs Mode state
+	Vs_IsPaused:		.ds 1	; $76 If set, 2P Vs is paused
 
 				.ds 125	; $77-$F3 unused
 
@@ -775,60 +774,60 @@ PAD_RIGHT	= $01
 
 ; There's a consistent difference of $12 between X and Y; this consistent distancing is meant to be maintained, so leave it alone!
 
-	Player_XHi:		.ds 1	; Player X Hi 
+	Player_XHi:		.ds 1	; $75 Player X Hi 
 	Objects_XHi:		.ds 8	; $76-$7D Other object's X Hi positions
 
 				.ds 1	; $7E unused
 
 	; Reuse of $7F
-CineKing_DialogState:	; Toad & King Cinematic: When 1, we're doing the text versus the dialog box itself
+CineKing_DialogState:	; $7F Toad & King Cinematic: When 1, we're doing the text versus the dialog box itself
 
 ; NOTE!! This object var is OBJECT SLOT 0 - 4 ONLY!
 	Objects_Var4:		.ds 5	; $7F-$83 Generic variable 4 for objects SLOT 0 - 4 ONLY
 
 	; Pipe_PlayerX/Y variables in use when traveling through pipes
-	Pipe_PlayerX:		.ds 1	; Stores Player's X when they went into pipe (non-transit)
-	Pipe_PlayerY:		.ds 1	; Stores Player's Y when they went into pipe (non-transit, aligned to nearest 16, minus 1)
+	Pipe_PlayerX:		.ds 1	; $84 Stores Player's X when they went into pipe (non-transit)
+	Pipe_PlayerY:		.ds 1	; $85 Stores Player's Y when they went into pipe (non-transit, aligned to nearest 16, minus 1)
 
 	.org $84	; NOTE, the following two are also $84/$85
 	; Otherwise, they are replaced with a lookup address
-	Level_GndLUT_Addr:	.ds 2
+	Level_GndLUT_Addr:	.ds 2	; $84-$85
 
 				.ds 1	; $86 unused
 
-	Player_YHi:		.ds 1	; Player Y Hi
+	Player_YHi:		.ds 1	; $87 Player Y Hi
 	Objects_YHi:		.ds 8	; $88-$8F Other object's Y Hi positions
-	Player_X:		.ds 1	; Player X
+	Player_X:		.ds 1	; $90 Player X
 	Objects_X:		.ds 8	; $91-$98 Other object's X positions
 
 				.ds 1	; $99 unused
 	; Reuse of $9A
-	CineKing_Var:		; General variable
+	CineKing_Var:		; $9A General variable
 
 	Objects_Var5:		.ds 8	; $9A-$A1 Generic variable 5 for objects
-	Player_Y:		.ds 1	; Player Y
-	Objects_Y:		.ds 8	; $A3-$A9 Other object's Y positions
+	Player_Y:		.ds 1	; $A2 Player Y
+	Objects_Y:		.ds 8	; $A3-$AA Other object's Y positions
 
-	Player_SpriteX:		.ds 1	; Player's sprite X
+	Player_SpriteX:		.ds 1	; $AB Player's sprite X
 	Objects_SpriteX:	.ds 8	; $AC-$B3 Other object's sprite X positions
-	Player_SpriteY:		.ds 1	; Player's sprite Y
+	Player_SpriteY:		.ds 1	; $B4 Player's sprite Y
 	Objects_SpriteY:	.ds 8	; $B5-$BC Other object's sprite Y positions
 	; WARNING: The distance between Player/Objects_XVel and Player/Objects_YVel must be same as Player/Objects_X/YVelFrac!
-	Player_XVel:		.ds 1	; Player's X Velocity (negative values to the left) (max value is $38)
+	Player_XVel:		.ds 1	; $BD Player's X Velocity (negative values to the left) (max value is $38)
 	Objects_XVel:		.ds 8	; $BE-$C5 Other object's X velocities
 
 	Objects_VarBSS:		.ds 7	; $C6-$CC OBJECT SLOTS 0 - 5 ONLY ... uncleared var??
-	SlotIndexBackup:	.ds 1	; Used as a backup for the slot index (e.g. current object, current score, etc.)
-	Player_HaltGame:	.ds 1	; Player is halting game (e.g. dying, shrinking/growing, etc.)
+	SlotIndexBackup:	.ds 1	; $CD Used as a backup for the slot index (e.g. current object, current score, etc.)
+	Player_HaltGame:	.ds 1	; $CE Player is halting game (e.g. dying, shrinking/growing, etc.)
 
 	; WARNING: The distance between Player/Objects_XVel and Player/Objects_YVel must be same as Player/Objects_X/YVelFrac!
-	Player_YVel:		.ds 1	; Player's Y Velocity (negative values upward)
+	Player_YVel:		.ds 1	; $CF Player's Y Velocity (negative values upward)
 	Objects_YVel:		.ds 8	; $D0-$D7 Other object's Y velocities
 
-	Player_InAir:		.ds 1	; When set, Player is in the air
+	Player_InAir:		.ds 1	; $D8 When set, Player is in the air
 
 	; Reuse of $D9
-	CineKing_Frame2:		; Used only by the World 6 King (Seal juggling a crown, the crown's frame)
+	CineKing_Frame2:		; $D9 Used only by the World 6 King (Seal juggling a crown, the crown's frame)
 
 	; Objects_DetStat:
 	; Object's detection bits:
@@ -839,20 +838,20 @@ CineKing_DialogState:	; Toad & King Cinematic: When 1, we're doing the text vers
 	;	$80-object touching "32 pixel partition" floor (if active)
 	Objects_DetStat:	.ds 8	; $D9-$E0  on screen
 
-	Player_SprWorkL:	.ds 1	; Sprite work address low
-	Player_SprWorkH:	.ds 1	; Sprite work address high
+	Player_SprWorkL:	.ds 1	; $E1 Sprite work address low
+	Player_SprWorkH:	.ds 1	; $E2 Sprite work address high
 
 				.ds 1	; $E3 unused
 
-	Level_TileOff:		.ds 1	; Tile mem offset
-	Level_Tile:		.ds 1	; Temporary holding point for a detected tile index
-	Player_Slopes:		.ds 3	; for sloped levels only (3 bytes allocated, but only one actually used)
+	Level_TileOff:		.ds 1	; $E4 Tile mem offset
+	Level_Tile:		.ds 1	; $E5 Temporary holding point for a detected tile index
+	Player_Slopes:		.ds 3	; $E6-$E8 for sloped levels only (3 bytes allocated, but only one actually used)
 				; *NOTE: Code at PRG030_9EDB clears Player_Slopes+1 and Player_Slopes+2, but these are never used!
 
 				.ds 1	; $E9 unused
 				.ds 1	; $EA unused
 
-	Player_XStart:		.ds 1	; Set to Player's original starting X position (also used to check if level has initialized)
+	Player_XStart:		.ds 1	; $EB Set to Player's original starting X position (also used to check if level has initialized)
 
 				.ds 1	; $EC unused
 
@@ -866,17 +865,17 @@ PLAYERSUIT_TANOOKI	= 5
 PLAYERSUIT_HAMMER	= 6
 PLAYERSUIT_SUPERSUITBEGIN = PLAYERSUIT_FROG	; Marker for when "Super Suits" begin
 PLAYERSUIT_LAST		= PLAYERSUIT_HAMMER	; Marker for "last" suit (Debug cycler needs it)
-	Player_Suit:		.ds 1
+	Player_Suit:		.ds 1	; $ED
 
-	Player_Frame:		.ds 1	; Player display frame
-	Player_FlipBits:	.ds 1	; Set to $00 for Player to face left, Set to $40 for Player to face right
+	Player_Frame:		.ds 1	; $EE Player display frame
+	Player_FlipBits:	.ds 1	; $EF Set to $00 for Player to face left, Set to $40 for Player to face right
 
-	Player_WagCount:	.ds 1	; after wagging raccoon tail, until this hits zero, holding 'A' keeps your fall rate low
-	Player_IsDying:		.ds 1	; 0 = Not dying, 1 = Dying, 2 = Dropped off screen, 3 = Death due to TIME UP
+	Player_WagCount:	.ds 1	; $F0 after wagging raccoon tail, until this hits zero, holding 'A' keeps your fall rate low
+	Player_IsDying:		.ds 1	; $F1 0 = Not dying, 1 = Dying, 2 = Dropped off screen, 3 = Death due to TIME UP
 
 				.ds 1	; $F2 unused
 
-	Obj01_Flag:		.ds 1	; Not sure what Obj01 is!! This blocks its left/right handler logic.
+	Obj01_Flag:		.ds 1	; $F3 Not sure what Obj01 is!! This blocks its left/right handler logic.
 
 	; ASSEMBLER BOUNDARY CHECK, END OF CONTEXT @ $F4
 .BoundZP_Game:	BoundCheck .BoundZP_Game, $F4, Zero Page Gameplay Context
@@ -894,12 +893,12 @@ PLAYERSUIT_LAST		= PLAYERSUIT_HAMMER	; Marker for "last" suit (Debug cycler need
 	.data
 	.org $0100
 
-	Update_Select:	.ds 1		; Changes which path of "update routines" are selected; $00 = ??, $20 = Title Screen, $40 = Spade Game, $80 = Vertical level, $A0 = 32 pixel partition, $C0 = Normal
+	Update_Select:	.ds 1		; $0100 Changes which path of "update routines" are selected; $00 = Stage Entry Transition, $20 = Title Screen, $40 = Spade Game, $80 = Vertical level, $A0 = 32 pixel partition, $C0 = Normal
 
-	Raster_Effect:	.ds 1		; $00 is standard status bar, $20 is title/ending, $40 = 32 pixel partition, $60 = Spade Bonus Game (3 sliding rows), $80 is nothing (e.g. as in 2P versus), $A0 = ???
+	Raster_Effect:	.ds 1		; $0100 $00 is standard status bar, $20 is title/ending, $40 = 32 pixel partition, $60 = Spade Bonus Game (3 sliding rows), $80 is nothing (e.g. as in 2P versus), $A0 = ???
 
 	.org $0160
-	Debug_Flag:	.ds 1		; Set to $80 by the debug menu, enables debug functionality like power level cycling and not dying from time over
+	Debug_Flag:	.ds 1		; $0160 Set to $80 by the debug menu, enables debug functionality like power level cycling and not dying from time over
 
 
 ; Main NES SRAM begin
@@ -941,40 +940,40 @@ SPR_VFLIP	= %10000000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	.org $0300
 
-	Graphics_BufCnt:	.ds 1	; first byte holds current position within buffer (Graphics_Buffer+) to store info
+	Graphics_BufCnt:	.ds 1	; $0300 first byte holds current position within buffer (Graphics_Buffer+) to store info
 	Graphics_Buffer:	.ds 107	; $0301-$036B Simple (and small!) delayed write buffer; uses same format as Video_Upd_Table in PRG030, get format info there
-	TileChng_VRAM_H:	.ds 1	; High part of VRAM address to change
-	TileChng_VRAM_L:	.ds 1	; Low part of VRAM address to change
+	TileChng_VRAM_H:	.ds 1	; $036C High part of VRAM address to change
+	TileChng_VRAM_L:	.ds 1	; $036D Low part of VRAM address to change
 	TileChng_Pats:		.ds 4	; $036E-$0371 The four patterns required to change a tile (for Level_ChgTileEvent)
-	Level_SizeOrig:		.ds 1	; Holds original size (width or height) of level (in screens)
-	Level_PipeExitDir:	.ds 1	; Direction Player is going to exit from a pipe (1 = Up, 2 = Down, 3 = Right, 4 = Left, 5 = In-level Transit)
-	Level_7VertCopy:	.ds 1	; Just seems to be an unmaintained copy of Level_7Vertical from level load, but that's it
-	Level_PipeNotExit:	.ds 1	; If set, pipes do NOT exit to map (i.e. as in pipe junctions)
-	Level_PauseFlag:	.ds 1	; Set to 0 when not paused, or 1 when paused
-	Level_SkipStatusBarUpd:	.ds 1	; When set, skips updating the status bar for one frame (priority graphics buffer changes I think)
-	Raster_State:		.ds 1	; This variable's meaning depends on the Raster_Effect in use; typically 0 is first pass, then more for further scanlines
+	Level_SizeOrig:		.ds 1	; $0372 Holds original size (width or height) of level (in screens)
+	Level_PipeExitDir:	.ds 1	; $0373 Direction Player is going to exit from a pipe (1 = Up, 2 = Down, 3 = Right, 4 = Left, 5 = In-level Transit)
+	Level_7VertCopy:	.ds 1	; $0374 Just seems to be an unmaintained copy of Level_7Vertical from level load, but that's it
+	Level_PipeNotExit:	.ds 1	; $0375 If set, pipes do NOT exit to map (i.e. as in pipe junctions)
+	Level_PauseFlag:	.ds 1	; $0376 Set to 0 when not paused, or 1 when paused
+	Level_SkipStatusBarUpd:	.ds 1	; $0377 When set, skips updating the status bar for one frame (priority graphics buffer changes I think)
+	Raster_State:		.ds 1	; $0378 This variable's meaning depends on the Raster_Effect in use; typically 0 is first pass, then more for further scanlines
 
 				.ds 7	; $0379-$037F unused
 
-	Scroll_ToVRAMHi:	.ds 1	; High byte for when pushing a column of tile data to VRAM (Set to $20, Name Table 0, after scroll update)
+	Scroll_ToVRAMHi:	.ds 1	; $0380 High byte for when pushing a column of tile data to VRAM (Set to $20, Name Table 0, after scroll update)
 
 	; $381 dual use
-	Scroll_LastCol8:		; Last 8x8 block column that was updated (non-vertical level ONLY)
-	Scroll_LastOff8:	.ds 1	; Last 8x8 block offset that was updated (vertical level style ONLY)
+	Scroll_LastCol8:		; $0381 Last 8x8 block column that was updated (non-vertical level ONLY)
+	Scroll_LastOff8:	.ds 1	; $0381 Last 8x8 block offset that was updated (vertical level style ONLY)
 
 	Scroll_PatStrip:	.ds 54	; $0382-$03B7 (may be less?) This stores a strip of 8x8 blocks, (non-vertical level: top to bottom with 2 columns), to render the next 16 pixel "sliver" of screen space
-	Scroll_ToVRAMHA:	.ds 1	; High byte for when pushing attribute data to VRAM (Set to $23, attribute table 0)
+	Scroll_ToVRAMHA:	.ds 1	; $03B8 High byte for when pushing attribute data to VRAM (Set to $23, attribute table 0)
 	Scroll_LastAttr:	.ds 1
 	Scroll_AttrStrip:	.ds 14	; $03BA-$03C7 (may be less?) This stores a 2x2 block of attribute coloring data
-	World_Num_Debug:	.ds 1	; When debug mode is activated (KKKZSPIU), this is the world you select to start on
-	Map_StarsDeltaX:	.ds 1	; Delta the stars move in X to reach the Player (always positive, code figures direction)
-	Map_StarsDeltaY:	.ds 1	; Delta the stars move in Y to reach the Player (always positive, code figures direction)
+	World_Num_Debug:	.ds 1	; $03C8 When debug mode is activated (KKKZSPIU), this is the world you select to start on
+	Map_StarsDeltaX:	.ds 1	; $03C9 Delta the stars move in X to reach the Player (always positive, code figures direction)
+	Map_StarsDeltaY:	.ds 1	; $03CA Delta the stars move in Y to reach the Player (always positive, code figures direction)
 
 				.ds 16	; $03CB-$03DA unused
 
-	Map_Stars_PRelX:	.ds 1	; During world intro, screen relative position of Player X
-	Map_Stars_PRelY:	.ds 1	; During world intro, screen relative position of Player Y
-	Player_Power:		.ds 1	; >>>>>>[P] charge level ($7F max)
+	Map_Stars_PRelX:	.ds 1	; $03DB During world intro, screen relative position of Player X
+	Map_Stars_PRelY:	.ds 1	; $03DC During world intro, screen relative position of Player Y
+	Player_Power:		.ds 1	; $03DD >>>>>>[P] charge level ($7F max)
 
 	; Level_JctCtl is configured when you enter a door or a pipe
 	; * When $80, use current values for Level_AltLayout and Level_AltObjects
@@ -987,15 +986,15 @@ SPR_VFLIP	= %10000000
 	;  3 - General purpose junction (as specified by Level_AltLayout and Level_AltObjects)
 	;  4 - Generic level exit (where you come up from a pipe in the generic exit area)
 	;  5 - Special Toad House (used for the 1-3 warp whistle)
-	Level_JctCtl:		.ds 1
+	Level_JctCtl:		.ds 1	; $03DE
 
-	Level_JctFlag:		.ds 1	; Toggles when you junction
+	Level_JctFlag:		.ds 1	; $03DF Toggles when you junction
 
 				.ds 1	; $03E0 unused
 
-	Map_DrawPanState:	.ds 1	; Map draw/pan state
-	ObjGroupRel_Idx:	.ds 1	; Holds relative index of object within its group (see PRG000_CA51)
-	InvFlip_VAddrHi:	.ds 1	; Hi byte of VRAM address during inventory flip modifications
+	Map_DrawPanState:	.ds 1	; $03E1 Map draw/pan state
+	ObjGroupRel_Idx:	.ds 1	; $03E2 Holds relative index of object within its group (see PRG000_CA51)
+	InvFlip_VAddrHi:	.ds 1	; $03E3 Hi byte of VRAM address during inventory flip modifications
 
 				.ds 1	; $03E4 unused
 
@@ -1019,13 +1018,13 @@ SPR_VFLIP	= %10000000
 	; 14: Draw bottom middle row of inventory
 	; 15: Draw top bar (at top)
 	; 16: Draw bottom bar (at bottom)
-	InvFlip_Frame:		.ds 1	; Sort of a "frame" of animation during flipping of the inventory box; 0-7 during closing, 8-15 during opening
-	InvFlip_Counter:	.ds 1	; 0 = Closed, 4 = Fully Open
-	InvStart_Item:		.ds 1	; Starting inventory item; typ. $00, $07, $0E, $15 (Rows 1-4)
-	InvHilite_X:		.ds 1	; Current hilite position X coordinate
-	InvHilite_Item:		.ds 1	; Which item in the current row is highlighted, 0-6
+	InvFlip_Frame:		.ds 1	; $03E5 Sort of a "frame" of animation during flipping of the inventory box; 0-7 during closing, 8-15 during opening
+	InvFlip_Counter:	.ds 1	; $03E6 0 = Closed, 4 = Fully Open
+	InvStart_Item:		.ds 1	; $03E7 Starting inventory item; typ. $00, $07, $0E, $15 (Rows 1-4)
+	InvHilite_X:		.ds 1	; $03E8 Current hilite position X coordinate
+	InvHilite_Item:		.ds 1	; $03E9 Which item in the current row is highlighted, 0-6
 
-	THouse_ID:		.ds 1	; An unused ID value that would track boxes already opened in a Toad House (concept unused!)
+	THouse_ID:		.ds 1	; $03EA An unused ID value that would track boxes already opened in a Toad House (concept unused!)
 
 	; Treasure type you'll get at this Toad House
 	; 0 = INVALID
@@ -1036,28 +1035,28 @@ SPR_VFLIP	= %10000000
 	; 5 = Hammer
 	; 6 = Random Super Suit
 	; 7 = Random Basic Item
-	THouse_Treasure:	.ds 1
+	THouse_Treasure:	.ds 1	; $03EB
 
-	Coins_Earned:		.ds 1	; A "buffer" of coins earned to be added to your total, actual coinage stored in Inventory_Coins[2]
-	Map_Powerup_Poof:	.ds 1	; Counter that handles the "poof" effect when a powerup is used on the map (requires Inventory to be open, and forces it to close afterward)
+	Coins_Earned:		.ds 1	; $03EC A "buffer" of coins earned to be added to your total, actual coinage stored in Inventory_Coins[2]
+	Map_Powerup_Poof:	.ds 1	; $03ED Counter that handles the "poof" effect when a powerup is used on the map (requires Inventory to be open, and forces it to close afterward)
 
 	; Level_FreeVertScroll
 	; 0 = Screen locked at $EF (lowest point) unless flying or climbing a vine
 	; 1 = Free vertical scroll
 	; 2 = Locked at arbitrary point (i.e. whatever Vert_Scroll is, it stays there)
-	Level_FreeVertScroll:		.ds 1
+	Level_FreeVertScroll:		.ds 1	; $03EE
 
-	Level_7Vertical:		.ds 1	; Set in World 7 vertical type levels
-	Level_SelXStart:		.ds 1	; Selects X starting position when level begins (valid values 0-3)
+	Level_7Vertical:		.ds 1	; $03EF Set in World 7 vertical type levels
+	Level_SelXStart:		.ds 1	; $03F0 Selects X starting position when level begins (valid values 0-3)
 
 UPDATERASTER_32PIXPART	= 1	; 32 pixel partition; common use is for levels with water along the bottom
 UPDATERASTER_SPADEGAME	= 2	; Spade game sliders
 UPDATERASTER_WATERLINE	= 3	; "Water line" mode (described at ObjHorzAutoScroller_Init)
 UPDATERASTER_32PIXSHOWSPR= $80	; If NOT set, hides sprites that fall beneath the partition (i.e. for fixed water effect)
-	Update_Request:		.ds 1	; This changes the current Raster_Effect and Update_Select and doesn't persist
-	Map_Starman:		.ds 1	; Player used a Starman!
-	Map_Power_Disp:		.ds 1	; This is the powerup currently DISPLAYED on the map; it should be the same as $0746 World_Map_Power, except for Judgem's Cloud
-	Map_Warp_PrevWorld:	.ds 1	; The world you're coming FROM when warping (also used as output from warp zone what world you're going to)
+	Update_Request:		.ds 1	; $03F1 This changes the current Raster_Effect and Update_Select and doesn't persist
+	Map_Starman:		.ds 1	; $03F2 Player used a Starman!
+	Map_Power_Disp:		.ds 1	; $03F3 This is the powerup currently DISPLAYED on the map; it should be the same as $0746 World_Map_Power, except for Judgem's Cloud
+	Map_Warp_PrevWorld:	.ds 1	; $03F4 The world you're coming FROM when warping (also used as output from warp zone what world you're going to)
 
 	; ASSEMBLER BOUNDARY CHECK, END OF $03xx
 .Bound_0300:	BoundCheck .Bound_0300, $0400, $03xx
@@ -1073,33 +1072,33 @@ UPDATERASTER_32PIXSHOWSPR= $80	; If NOT set, hides sprites that fall beneath the
 
 	.org $0447
 ; W8D = World 8 Darkness; overlaps the vars used by the entrance transition
-	Map_W8D_VAddrH:		.ds 1
+	Map_W8D_VAddrH:		.ds 1	; $0447
 
 				.ds 3	; $0448-$044A unused
 
-	Map_W8D_VAddrL:		.ds 1
+	Map_W8D_VAddrL:		.ds 1	; $044B
 
 				.ds 5	; $044C-$0450 unused
 
-	Map_W8D_VAddrH2:	.ds 1
+	Map_W8D_VAddrH2:	.ds 1	; $0451
 
 				.ds 1	; $0452 unused
 
-	Map_W8D_VAddrL2:	.ds 1
+	Map_W8D_VAddrL2:	.ds 1	; $0453
 
 				.ds 1	; $0454 unused
 
-	Map_W8D_TileOff:	.ds 1	; In-tile offset (0 = upper left, 1 = lower left, 2 = upper right, 3 = lower right)
+	Map_W8D_TileOff:	.ds 1	; $0455 In-tile offset (0 = upper left, 1 = lower left, 2 = upper right, 3 = lower right)
 
 				.ds 2	; $0456-$0457 unused
 
-	Map_W8D_YOff:		.ds 1	; Y Offset from Player when doing darkness
-	Map_W8D_XOff:		.ds 1	; X Offset from Player when doing darkness
-	Map_W8D_RC:		.ds 1	; Row in the upper bits, column in the lower bits
-	Map_W8D_Dir:		.ds 1	; Direction of travel in darkness (1 = Right, 2 = Left, 4 = Down, 8 = Up)
-	Map_W8D_X:		.ds 1
-	Map_W8D_Y:		.ds 1
-	Map_W8D_Idx:		.ds 1
+	Map_W8D_YOff:		.ds 1	; $0458 Y Offset from Player when doing darkness
+	Map_W8D_XOff:		.ds 1	; $0459 X Offset from Player when doing darkness
+	Map_W8D_RC:		.ds 1	; $045A Row in the upper bits, column in the lower bits
+	Map_W8D_Dir:		.ds 1	; $045B Direction of travel in darkness (1 = Right, 2 = Left, 4 = Down, 8 = Up)
+	Map_W8D_X:		.ds 1	; $045C
+	Map_W8D_Y:		.ds 1	; $045D
+	Map_W8D_Idx:		.ds 1	; $045E
 
 	; ASSEMBLER BOUNDARY CHECK, CONTEXT END OF $04D0
 .BoundW8D_04D0:	BoundCheck .BoundW8D_04D0, $04D0, $04xx range World Map Entrance Transition context
@@ -1108,24 +1107,24 @@ UPDATERASTER_32PIXSHOWSPR= $80	; If NOT set, hides sprites that fall beneath the
 	; Entrance transition; overlaps with above
 	; NOTE: Memory is cleared from here to +$1C, $460
 	; For border arrays, 0-3: Top 0, bottom 1, right 2, left 3
-	Map_EntTran_VLHalf:	.ds 1	; When 1, offset starts vertically "lower half" (at $F0 of first screen)
-	Map_EntTran_TBCnt:	.ds 1	; decreasing counter as the transition moves inward top/bottom
-	Map_EntTran_LRCnt:	.ds 1	; decreasing counter as the transition moves inward left/right
+	Map_EntTran_VLHalf:	.ds 1	; $0444 When 1, offset starts vertically "lower half" (at $F0 of first screen)
+	Map_EntTran_TBCnt:	.ds 1	; $0445 decreasing counter as the transition moves inward top/bottom
+	Map_EntTran_LRCnt:	.ds 1	; $0446 decreasing counter as the transition moves inward left/right
 	Map_EntTran_BVAddrH:	.ds 4	; $0447-$044A Each border's current high part of VRAM address
 	Map_EntTran_BVAddrL:	.ds 4	; $044B-$044E Each border's current low part of VRAM address
-	Map_EntTran_BorderLoop:	.ds 1	; Border loop counter 
-	Map_EntTran_Cnt:	.ds 1
-	Map_EntTran_VAddrH:	.ds 1	; high part of VRAM address to modify
-	Map_EntTran_VAddrHAdj:	.ds 1	; An adjusted version of the high address as needed to wrap (used in removed "box out" version only)
-	Map_EntTran_VAddrL:	.ds 1	; low part of VRAM address to modify
-	Map_EntTran_TileOff:	.ds 1	; Offset into tile memory (used in removed "box out" version only)
-	Map_EntTran_Tile8x8:	.ds 1	; Offset to which 8x8 pattern of the tile we're grabbing that we need (used in removed "box out" version only)
-	Map_EntTran_VRAMGap:	.ds 1	; Sets gap (i.e. 1 for vertical, 32 for horizontal; used in removed "box out" version only)
+	Map_EntTran_BorderLoop:	.ds 1	; $044F Border loop counter 
+	Map_EntTran_Cnt:	.ds 1	; $0450
+	Map_EntTran_VAddrH:	.ds 1	; $0451 high part of VRAM address to modify
+	Map_EntTran_VAddrHAdj:	.ds 1	; $0452 An adjusted version of the high address as needed to wrap (used in removed "box out" version only)
+	Map_EntTran_VAddrL:	.ds 1	; $0453 low part of VRAM address to modify
+	Map_EntTran_TileOff:	.ds 1	; $0454 Offset into tile memory (used in removed "box out" version only)
+	Map_EntTran_Tile8x8:	.ds 1	; $0455 Offset to which 8x8 pattern of the tile we're grabbing that we need (used in removed "box out" version only)
+	Map_EntTran_VRAMGap:	.ds 1	; $0456 Sets gap (i.e. 1 for vertical, 32 for horizontal; used in removed "box out" version only)
 
 				.ds 8	; $0457-$045E unused
 
-	Map_EntTran_Temp:	.ds 1	; Seems to me a multi-purpose value in entrance transition
-	Map_EntTran_InitValIdx:	.ds 1	; Selects an index of values to initialize by
+	Map_EntTran_Temp:	.ds 1	; $045F Seems to me a multi-purpose value in entrance transition
+	Map_EntTran_InitValIdx:	.ds 1	; $0460 Selects an index of values to initialize by
 
 	; ASSEMBLER BOUNDARY CHECK, CONTEXT END OF $04D0
 .BoundET_04D0:	BoundCheck .BoundET_04D0, $04D0, $04xx range World Map Entrance Transition context
@@ -1140,15 +1139,15 @@ UPDATERASTER_32PIXSHOWSPR= $80	; If NOT set, hides sprites that fall beneath the
 	Roulette_Pos:		.ds 3	; $0400-$0402 horizontal position of each row
 	Roulette_PosHi:		.ds 3	; $0403-$0405 Hi part of Roulette_Pos
 	Roulette_ShapeLock:	.ds 3	; $0406-$0408 Locked position of each row (0 = Mushroom, 1 = Flower, 2 = Mushroom, 3 = Star)
-	Roulette_ConfigRun:	.ds 1	; 0 = Configuring, 1 = Running
-	Roulette_ConfigState:	.ds 1	; Early configuration state
-	Roulette_RunState:	.ds 1	; Running state of game
+	Roulette_ConfigRun:	.ds 1	; $0409 0 = Configuring, 1 = Running
+	Roulette_ConfigState:	.ds 1	; $040A Early configuration state
+	Roulette_RunState:	.ds 1	; $040B Running state of game
 
 	; NOTE: Watch the reuse here...
 	Roulette_StopState:		; $040C-$040E Current "state" of each row while it is coming to a stop (1+)
-	Roulette_xUpY:		.ds 1	; "x Up" display Y position (overlaps first byte of Roulette_StopState)
-	Roulette_LivesToGive:	.ds 1	; Lives left to give in reward (overlaps second byte of Roulette_StopState)
-				.ds 1	; Third byte of Roulette_StopState
+	Roulette_xUpY:		.ds 1	; $040C "x Up" display Y position (overlaps first byte of Roulette_StopState)
+	Roulette_LivesToGive:	.ds 1	; $040D Lives left to give in reward (overlaps second byte of Roulette_StopState)
+				.ds 1	; $040E Third byte of Roulette_StopState
 
 	Roulette_Speed:		.ds 3	; $040F-$0411 Movement speed of each row (4.4FP)
 	Roulette_StopCnt:	.ds 3	; $0412-$0414 Decrements to zero while each row is stopping
@@ -1156,7 +1155,7 @@ UPDATERASTER_32PIXSHOWSPR= $80	; If NOT set, hides sprites that fall beneath the
 
 				.ds 1	; $0418 unused
 
-	Roulette_Turns:		.ds 1	; UNUSED "Turns Remaining" (if > 0, and you lose Roulette, hit a button and spin again!)
+	Roulette_Turns:		.ds 1	; $0419 UNUSED "Turns Remaining" (if > 0, and you lose Roulette, hit a button and spin again!)
 
 				.ds 12		; $041A-$0425 unused
 
@@ -1165,29 +1164,29 @@ UPDATERASTER_32PIXSHOWSPR= $80	; If NOT set, hides sprites that fall beneath the
 	; Mushroom, Flower, Star, or Judgem's Cloud.  Perhaps it was a situation
 	; like "Here's the prize on the table, if you can get it"...
 	Card_SelectX:			; Card cursor X (NOTE: Shared with Bonus_PrizeX)
-	Bonus_PrizeX:		.ds 1	; UNUSED Prize sprite X
+	Bonus_PrizeX:		.ds 1	; $0426 UNUSED Prize sprite X
 
-	Card_SelectY:			; Card cursor Y (NOTE: Shared with Bonus_PrizeY)
-	Bonus_PrizeY:		.ds 1	; UNUSED Prize sprite Y
+	Card_SelectY:			; $0427 Card cursor Y (NOTE: Shared with Bonus_PrizeY)
+	Bonus_PrizeY:		.ds 1	; $0427 UNUSED Prize sprite Y
 
-	Card_Index:			; Currently selected card in "N-Spade" Card game (NOTE: Shared with Bonus_CurBufOffset)
-	Bonus_CurBufOffset:	.ds 1	; Offset in graphics buffer while generating instruction box
+	Card_Index:			; $0428 Currently selected card in "N-Spade" Card game (NOTE: Shared with Bonus_CurBufOffset)
+	Bonus_CurBufOffset:	.ds 1	; $0428 Offset in graphics buffer while generating instruction box
 
-	Card_FirstIndex:	.ds 1	; Card_Index of the first card you flipped (in case you get it wrong on the second...)
+	Card_FirstIndex:	.ds 1	; $0429 Card_Index of the first card you flipped (in case you get it wrong on the second...)
 
-	Bonus_Round2:			; UNUSED Picks which "Round 2" game would be played (NOTE: Shared with Card_SelectXOrig)
-	Card_SelectXOrig:	.ds 1	; Card cursor original X
+	Bonus_Round2:			; $042A UNUSED Picks which "Round 2" game would be played (NOTE: Shared with Card_SelectXOrig)
+	Card_SelectXOrig:	.ds 1	; $042A Card cursor original X
 
-	Card_MoveDelay:		.ds 1	; Decrements to zero; if not zero, can't move on N-Spade game
-	Card_SprRAMOff:		.ds 1	; Sprite RAM offset after cursor is drawn; for drawing card flip
-	Card_AnimTick:		.ds 1	; Animation tick, decrements to zero
-	Card_VRAM_L:		.ds 1	; Low part of VRAM address of N-Spade card to modify
-	Card_VRAM_H:		.ds 1	; High part of VRAM address of N-Spade card to modify
+	Card_MoveDelay:		.ds 1	; $042B Decrements to zero; if not zero, can't move on N-Spade game
+	Card_SprRAMOff:		.ds 1	; $042C Sprite RAM offset after cursor is drawn; for drawing card flip
+	Card_AnimTick:		.ds 1	; $042D Animation tick, decrements to zero
+	Card_VRAM_L:		.ds 1	; $042E Low part of VRAM address of N-Spade card to modify
+	Card_VRAM_H:		.ds 1	; $042F High part of VRAM address of N-Spade card to modify
 
-	Card_FlipCount:		.ds 1	; +1 for every card flip
-	Card_MatchCard:		.ds 1	; Card to match, i.e. the first card you selected of the pair
-	Card_UnusedVL:		.ds 1	; ?? Some VRAM Low; Seems to only be part of an unused routine
-	Card_UnusedVH:		.ds 1	; ?? Some VRAM High; Seems to only be part of an unused routine
+	Card_FlipCount:		.ds 1	; $0430 +1 for every card flip
+	Card_MatchCard:		.ds 1	; $0431 Card to match, i.e. the first card you selected of the pair
+	Card_UnusedVL:		.ds 1	; $0432 ?? Some VRAM Low; Seems to only be part of an unused routine
+	Card_UnusedVH:		.ds 1	; $0433 ?? Some VRAM High; Seems to only be part of an unused routine
 
 	; Bonus_GameHost
 	;	0 = Toad Host: The only one we ever got
@@ -1195,18 +1194,18 @@ UPDATERASTER_32PIXSHOWSPR= $80	; If NOT set, hides sprites that fall beneath the
 	;	1 = Koopa Troopa Host + "Prize" Game
 	;	2 = Koopa Troopa Host, no "Prize" Game
 	;	3 = Hammer Bro
-	Bonus_GameHost:			; NOTE: Shared with Card_GameState
-	Card_GameState:		.ds 1	; State of N-Spade card game
-	Card_TurnsRemain:	.ds 1	; Number of turns remaining
-	Card_FlipFrame:		.ds 1	; Frame of flipping card
+	Bonus_GameHost:			; $0434 NOTE: Shared with Card_GameState
+	Card_GameState:		.ds 1	; $0434 State of N-Spade card game
+	Card_TurnsRemain:	.ds 1	; $0435 Number of turns remaining
+	Card_FlipFrame:		.ds 1	; $0436 Frame of flipping card
 
 ; The next three vars belong to an unused routine @ PRG022:DA62; unclear what it did exactly
 	Card_UnusedArray:	.ds 4	; $0437-$043A ??
-	Card_UnusedAttr:	.ds 1	; Seems to only be part of an unused routine; attribute table offset of some sort
-	Card_UnusedArrIdx:	.ds 1	; Seems to only be part of an unused routine; index for Card_UnusedArrIdx
+	Card_UnusedAttr:	.ds 1	; $043B Seems to only be part of an unused routine; attribute table offset of some sort
+	Card_UnusedArrIdx:	.ds 1	; $043C Seems to only be part of an unused routine; index for Card_UnusedArrIdx
 
-	Card_Matches:		.ds 1	; Matches (local, this round; Seems to only be used as part of the unused routine)
-	Card_CoinsToGive:	.ds 1	; If greater than zero, coins are being given
+	Card_Matches:		.ds 1	; $043D Matches (local, this round; Seems to only be used as part of the unused routine)
+	Card_CoinsToGive:	.ds 1	; $043E If greater than zero, coins are being given
 
 				.ds 1	; $043F unused
 
@@ -1222,9 +1221,9 @@ UPDATERASTER_32PIXSHOWSPR= $80	; If NOT set, hides sprites that fall beneath the
 	; 7 = Giving instructions
 	; 8 = Pause before proceeding
 	; 9 = Exiting
-	Bonus_GameState:	.ds 1
+	Bonus_GameState:	.ds 1	; $0440
 
-	Card_InitState:		.ds 1	; Initialization state of N-Spade card game
+	Card_InitState:		.ds 1	; $0441 Initialization state of N-Spade card game
 
 	; Bonus_GameType
 	; This appears to determine what game you're about to play.
@@ -1256,9 +1255,9 @@ BONUS_UNUSED_DDDD	= 4	; Unused placeholder (I think), but does actually set some
 BONUS_UNUSED_ODDROULETTE= 5
 BONUS_UNUSED_EVENCARD	= 6
 BONUS_UNUSED_2RETURN	= 7	; MAY have been Koopa Troopa's "Prize" Game...
-	Bonus_GameType:		.ds 1
+	Bonus_GameType:		.ds 1	; $0442
 
-	Bonus_KTPrize:		.ds 1	; UNUSED Koopa Troopa's "Prize" Game Prize ID (0 = Mushroom, 1 = Star, 2 = Flower, 3 = Judgem's, by BMF54123's patch)
+	Bonus_KTPrize:		.ds 1	; $0443 UNUSED Koopa Troopa's "Prize" Game Prize ID (0 = Mushroom, 1 = Star, 2 = Flower, 3 = Judgem's, by BMF54123's patch)
 
 	; $0444-$04CF unused in this context (excluding $0461 and $0462, see "$04xx RAM SOUND/MUSIC ENGINE")
 
@@ -1272,14 +1271,14 @@ BONUS_UNUSED_2RETURN	= 7	; MAY have been Koopa Troopa's "Prize" Game...
 
 	.ds 27	; $0400-$041A unused
 
-	Fade_State:		.ds 1	; 0 = Nothing, 1 = Fade in, 3 = Fade out
-	Fade_Tick:		.ds 1	; Ticks down and then decrements Fade_Level
-	Fade_Level:		.ds 1	; 4 to 0, fade in level
-	FadeOut_Cancel:		.ds 1	; If set, the next attempted fade out will be cancelled, which then resets this to zero
-	Player_AllowAirJump:	.ds 1	; Counts down to zero, but while set, you can jump in the air
-	Player_XVelAdj:		.ds 1	; Applies additional value to the X Velocity
+	Fade_State:		.ds 1	; $041B 0 = Nothing, 1 = Fade in, 3 = Fade out
+	Fade_Tick:		.ds 1	; $041C Ticks down and then decrements Fade_Level
+	Fade_Level:		.ds 1	; $041D 4 to 0, fade in level
+	FadeOut_Cancel:		.ds 1	; $041E If set, the next attempted fade out will be cancelled, which then resets this to zero
+	Player_AllowAirJump:	.ds 1	; $041F Counts down to zero, but while set, you can jump in the air
+	Player_XVelAdj:		.ds 1	; $0420 Applies additional value to the X Velocity
 
-	CineKing_Frame:			; King's animation frame (NOTE: Shared with Objects_Var7 first byte)
+	CineKing_Frame:			; $0421 King's animation frame (NOTE: Shared with Objects_Var7 first byte)
 	Objects_Var7:		.ds 8	; $0421-$0428 General object variable 7
 
 	; $0429-$04CF unused in this context (excluding $0461 and $0462, see "$04xx RAM SOUND/MUSIC ENGINE")
@@ -1297,47 +1296,47 @@ BONUS_UNUSED_2RETURN	= 7	; MAY have been Koopa Troopa's "Prize" Game...
 ; These ought to be moved into the greater range to spare this area...
 ; $04EB and $04EC are unused, good place for these vars!!
 
-Level_MusicQueue:		.ds 1	; Requests a song from Set 2A/B (used to allow delayed start)
-Level_MusicQueueRestore:	.ds 1	; What to "restore" the BGM to when it changes (e.g. Starman, P-Switch, etc.)
+Level_MusicQueue:		.ds 1	; $0461 Requests a song from Set 2A/B (used to allow delayed start)
+Level_MusicQueueRestore:	.ds 1	; $0462 What to "restore" the BGM to when it changes (e.g. Starman, P-Switch, etc.)
 
 	.org $04D0
 
 ; $04D0-$04FF is reserved for use by the sound/music engine
 ; Lower ranges are context-dependent
 
-	Music_TriTrkPos:	.ds 1	; Offset of triangle track in currently playing index
-	Music_NseTrkPos:	.ds 1	; Offset of noise track in currently playing index
-	Music_PCMTrkPos:	.ds 1	; Offset of DMC track in currently playing index
-	Music_Sq2RestH:		.ds 1	; Square 2 Track hold for rest values to be applied after each event
-	Music_Sq2Rest:		.ds 1	; Square 2 Track "Rest" period (counts down to zero)
-	Music_Sq2NoteLen:	.ds 1	; Square 2 Track length of note (counts down to zero, cuts off sound)
-	Music_Sq1Rest:		.ds 1	; Square 1 Track "Rest" period (counts down to zero)
-	Music_Sq1NoteLen:	.ds 1	; Square 1 Track length of note (counts down to zero, cuts off sound)
-	Music_TriRestH:		.ds 1	; Triangle Track hold for rest values to be applied after each event
-	Music_TriRest:		.ds 1	; Triangle Track "Rest" period (counts down to zero)
-	Music_NoiseRest:	.ds 1	; Noise Track "Rest" period (counts down to zero)
-	Music_NseRestH:		.ds 1	; Noise Track hold for rest values to be applied after each event
-	Music_DMCRest:		.ds 1	; DMC Track "Rest" period (counts down to zero)
-	Music_DMCRestH:		.ds 1	; DMC Track hold for rest values to be applied after each event
-	Music_PCMStart:		.ds 1	; Holds the starting offset of the DMC track
-	Music_NextIndex:	.ds 1	; Next "index" to be played
+	Music_TriTrkPos:	.ds 1	; $04D0 Offset of triangle track in currently playing index
+	Music_NseTrkPos:	.ds 1	; $04D1 Offset of noise track in currently playing index
+	Music_PCMTrkPos:	.ds 1	; $04D2 Offset of DMC track in currently playing index
+	Music_Sq2RestH:		.ds 1	; $04D3 Square 2 Track hold for rest values to be applied after each event
+	Music_Sq2Rest:		.ds 1	; $04D4 Square 2 Track "Rest" period (counts down to zero)
+	Music_Sq2NoteLen:	.ds 1	; $04D5 Square 2 Track length of note (counts down to zero, cuts off sound)
+	Music_Sq1Rest:		.ds 1	; $04D6 Square 1 Track "Rest" period (counts down to zero)
+	Music_Sq1NoteLen:	.ds 1	; $04D7 Square 1 Track length of note (counts down to zero, cuts off sound)
+	Music_TriRestH:		.ds 1	; $04D8 Triangle Track hold for rest values to be applied after each event
+	Music_TriRest:		.ds 1	; $04D9 Triangle Track "Rest" period (counts down to zero)
+	Music_NoiseRest:	.ds 1	; $04DA Noise Track "Rest" period (counts down to zero)
+	Music_NseRestH:		.ds 1	; $04DB Noise Track hold for rest values to be applied after each event
+	Music_DMCRest:		.ds 1	; $04DC DMC Track "Rest" period (counts down to zero)
+	Music_DMCRestH:		.ds 1	; $04DD DMC Track hold for rest values to be applied after each event
+	Music_PCMStart:		.ds 1	; $04DE Holds the starting offset of the DMC track
+	Music_NextIndex:	.ds 1	; $04DF Next "index" to be played
 
-	SFX_Counter1:		.ds 1	; Generic purpose SFX counter
-	SndCur_Player:		.ds 1	; Currently playing Player sound (blocks music on Square 1)
-	SndCur_Level1:		.ds 1	; Currently playing "level 1" sound (blocks music on Square 2)
-	SndCur_Level2:		.ds 1	; Currently playing "level 2" sound
-	SndCur_Music1:		.ds 1	; Currently playing BGM from Music 1 set
-	SndCur_Music2:		.ds 1	; Currently playing BGM from Music 2 set
-	SndCur_Map:		.ds 1	; Currently playing map sound (blocks music on Square 1)
-	SndCur_Pause:		.ds 1	; Holds copy of Sound_QPause, to play sound while everything else is paused
-	SFX_Counter2:		.ds 1	; Generic purpose SFX counter for level sounds
-	SFX_Counter3:		.ds 1	; Generic purpose SFX counter
-	SFX_Counter4:		.ds 1	; Generic purpose SFX counter
+	SFX_Counter1:		.ds 1	; $04E0 Generic purpose SFX counter
+	SndCur_Player:		.ds 1	; $04E1 Currently playing Player sound (blocks music on Square 1)
+	SndCur_Level1:		.ds 1	; $04E2 Currently playing "level 1" sound (blocks music on Square 2)
+	SndCur_Level2:		.ds 1	; $04E3 Currently playing "level 2" sound
+	SndCur_Music1:		.ds 1	; $04E4 Currently playing BGM from Music 1 set
+	SndCur_Music2:		.ds 1	; $04E5 Currently playing BGM from Music 2 set
+	SndCur_Map:		.ds 1	; $04E6 Currently playing map sound (blocks music on Square 1)
+	SndCur_Pause:		.ds 1	; $04E7 Holds copy of Sound_QPause, to play sound while everything else is paused
+	SFX_Counter2:		.ds 1	; $04E8 Generic purpose SFX counter for level sounds
+	SFX_Counter3:		.ds 1	; $04E9 Generic purpose SFX counter
+	SFX_Counter4:		.ds 1	; $04EA Generic purpose SFX counter
 
 				.ds 1	; $04EB unused
 				.ds 1	; $04EC unused
 
-	Sound_IsPaused:		.ds 1	; When set, sound processing is PAUSED
+	Sound_IsPaused:		.ds 1	; $04ED When set, sound processing is PAUSED
 
 				.ds 1	; $04EE ununsed
 				.ds 1	; $04EF ununsed
@@ -1354,8 +1353,8 @@ SND_PLAYERKICK	= $08	; Kick
 SND_PLAYERPIPE	= $10 	; Pipe / shrink
 SND_PLAYERFIRE	= $20 	; Fireball
 SND_PLAYERPOWER	= $40	; Full power ringing (must be constantly set or you don't hear it)
-SND_PLAYERFROG	= $80 	; frog hop
-	Sound_QPlayer:		.ds 1
+SND_PLAYERFROG	= $80 	; Frog hop
+	Sound_QPlayer:		.ds 1	; $04F1
 
 ; Queue Level sound effects 1
 SND_LEVELCOIN	= $01	; Coin
@@ -1369,7 +1368,7 @@ SND_LEVELPOOF	= $80 	; Lost suit / wand shot
 SND_LEVELUNK	= $90	; Unknown / lost sound
 SND_LEVELSHOE	= $A0	; Lost Kuirbo's Shoe
 SND_LEVELTAILWAG= $B0	; Tail wag
-	Sound_QLevel1:		.ds 1
+	Sound_QLevel1:		.ds 1	; $04F2
 
 ; Queue Level sound effects 2
 SND_LEVELCRUMBLE= $01	; Crumbling brick
@@ -1380,7 +1379,7 @@ SND_LEVELMARCH	= $10 	; Hammer Bros. march around
 ; $20 - Unused
 ; $40 - Unused
 SND_LEVELSKID	= $80 	; Skid
-	Sound_QLevel2:		.ds 1
+	Sound_QLevel2:		.ds 1	; $04F3
 
 
 ; Queue music request 1
@@ -1393,7 +1392,7 @@ MUS1_BOWSERFALL		= $10	; Bowser dramatic falling
 MUS1_COURSECLEAR	= $20	; Course Clear
 MUS1_TIMEWARNING	= $40	; Time Warning (attempts to speed up song playing)
 MUS1_STOPMUSIC		= $80	; Stops playing any music
-	Sound_QMusic1:		.ds 1
+	Sound_QMusic1:		.ds 1	; $04F4
 
 ; Queue music request 2
 ; The following I've grouped into "Set 2A":
@@ -1428,7 +1427,7 @@ MUS2B_PSWITCH		= $A0	; P-Switch
 MUS2B_BOWSER		= $B0	; Bowser
 MUS2B_WORLD8LETTER	= $C0	; Bowser's World 8 Letter
 MUS2B_MASK		= $F0	; Not intended for use in code, readability/traceability only
-	Sound_QMusic2:		.ds 1
+	Sound_QMusic2:		.ds 1	; $04F5
 
 ; Queue map sound effects
 SND_MAPENTERWORLD	= $01	; World begin starry entrance sound
@@ -1439,22 +1438,22 @@ SND_MAPBONUSAPPEAR	= $10	; Bonus appears
 ; $20: ?? unused ?
 ; $40: ?? unused ?
 SND_MAPDENY		= $80	; Denied
-	Sound_QMap:		.ds 1
+	Sound_QMap:		.ds 1	; $04F6
 
 ; Queue pause sound
 PAUSE_STOPMUSIC		= $01	; Pause sound effect (like pressing START, pauses music!)
 PAUSE_RESUMEMUSIC	= $02	; Resume sound (resumes music)
-	Sound_QPause:		.ds 1
+	Sound_QPause:		.ds 1	; $04F7
 
-	DMC_Time:		.ds 1	; Time remaining on DMC sound
-	Music_Sq1RestH:		.ds 1	; Square 1 Track hold for rest values to be applied after each event
-	Music_Sq1AltRamp:		.ds 1	; When Square 1 track encounters a $00 byte, it actives a ramping mode, the value of which is stored here
-	Music_LOST4FB:		.ds 1	; AFAIK, value in music engine that is "lost"; nothing seems to set it, and it doesn't do very much (possibly was a note length override??)
-	Music_LOST4FC:		.ds 1	; AFAIK, value in music engine that is "lost"; nothing seems to set it, and it doesn't do very much
+	DMC_Time:		.ds 1	; $04F8 Time remaining on DMC sound
+	Music_Sq1RestH:		.ds 1	; $04F9 Square 1 Track hold for rest values to be applied after each event
+	Music_Sq1AltRamp:		.ds 1	; $04FA When Square 1 track encounters a $00 byte, it actives a ramping mode, the value of which is stored here
+	Music_LOST4FB:		.ds 1	; $04FB AFAIK, value in music engine that is "lost"; nothing seems to set it, and it doesn't do very much (possibly was a note length override??)
+	Music_LOST4FC:		.ds 1	; $04FC AFAIK, value in music engine that is "lost"; nothing seems to set it, and it doesn't do very much
 
-	Music_RestH_Base:	.ds 1	; Base offset into Music_RestH_LUT
-	Music_Sq2TrkOff:	.ds 1	; Offset of square wave 2 track in currently playing index
-	Music_Sq1TrkOff:	.ds 1	; Offset of square wave 1 track in currently playing index
+	Music_RestH_Base:	.ds 1	; $04FD Base offset into Music_RestH_LUT
+	Music_Sq2TrkOff:	.ds 1	; $04FE Offset of square wave 2 track in currently playing index
+	Music_Sq1TrkOff:	.ds 1	; $04FF Offset of square wave 1 track in currently playing index
 
 	; ASSEMBLER BOUNDARY CHECK, CONTEXT END OF $04D0
 .BoundSound_0500:	BoundCheck .BoundSound_0500, $0500, $04xx Sound Engine
@@ -1473,12 +1472,12 @@ PAUSE_RESUMEMUSIC	= $02	; Resume sound (resumes music)
 				.ds 16	; $0500-$050F unused
 
 	; NOTE: All of this block is cleared by the title screen
-	Title_MLAccelCnt:	.ds 1	; constant moving counter which overflows to provide a more "natural" acceleration to the Bros
-	Title_MarioPoof:	.ds 1	; countdown of Mario's "poof" when he collects the power up
-	Title_MLHoldTick:	.ds 1	; Set to $40 when Mario/Luigi are "held" (count down to zero)
-	Title_ObjVar:		.ds 6	; $513-$518 Minor objects user-defined variable 1 (automatically decrements if not zero!)
-	Title_ObjVar2:		.ds 6	; $519-$51E Minor objects user-defined variable 2
-	Title_ObjFrame:		.ds 6	; $51F-$524 Minor object "frame"; adds 2x the value here to the pattern selection for the object's sprites
+	Title_MLAccelCnt:	.ds 1	; $0510 constant moving counter which overflows to provide a more "natural" acceleration to the Bros
+	Title_MarioPoof:	.ds 1	; $0511 countdown of Mario's "poof" when he collects the power up
+	Title_MLHoldTick:	.ds 1	; $0512 Set to $40 when Mario/Luigi are "held" (count down to zero)
+	Title_ObjVar:		.ds 6	; $0513-$0518 Minor objects user-defined variable 1 (automatically decrements if not zero!)
+	Title_ObjVar2:		.ds 6	; $0519-$051E Minor objects user-defined variable 2
+	Title_ObjFrame:		.ds 6	; $051F-$0524 Minor object "frame"; adds 2x the value here to the pattern selection for the object's sprites
 
 	; $0525-$05FF unused
 
@@ -1503,12 +1502,12 @@ PAUSE_RESUMEMUSIC	= $02	; Resume sound (resumes music)
 
 				.ds 60	; $054B-$0586 unused
 
-	Map_Objects_Vis:	.ds 15	; $0587-$058E Set for map objects as visible, clear if it's not
-	Map_MarchInit:		.ds 1	; Set when marching data has been initialized (done once per marching cycle on the map)
-	Map_InCanoe_Flag:	.ds 1	; Set when Player is in Canoe (modifies movement, allows movement in water, etc.)
-	World_8_Dark:		.ds 1	; Darkness on World 8 Map, level 2 -- counts 0-7 while setting up the effect
-	World_Map_AnimF:	.ds 1	; World map animation frame (for bushes, etc.)
-	World_Map_AnimT:	.ds 1	; World map animation tick
+	Map_Objects_Vis:	.ds 15	; $0587-$0595 Set for map objects as visible, clear if it's not
+	Map_MarchInit:		.ds 1	; $0596 Set when marching data has been initialized (done once per marching cycle on the map)
+	Map_InCanoe_Flag:	.ds 1	; $0597 Set when Player is in Canoe (modifies movement, allows movement in water, etc.)
+	World_8_Dark:		.ds 1	; $0598 Darkness on World 8 Map, level 2 -- counts 0-7 while setting up the effect
+	World_Map_AnimF:	.ds 1	; $0599 World map animation frame (for bushes, etc.)
+	World_Map_AnimT:	.ds 1	; $059A World map animation tick
 
 
 	; $059B-$05FF unused
@@ -1523,8 +1522,8 @@ PAUSE_RESUMEMUSIC	= $02	; Resume sound (resumes music)
 
 				.ds 231	; $0500-$05E6 unused
 
-	BonusText_VH:		.ds 1
-	BonusText_VL:		.ds 1
+	BonusText_VH:		.ds 1	; $05E7
+	BonusText_VL:		.ds 1	; $05E8
 
 	; $05E9-$05FF unused
 
@@ -1543,20 +1542,20 @@ PAUSE_RESUMEMUSIC	= $02	; Resume sound (resumes music)
 	; * When you die, counts down until dropping back to map
 
 	; NOTE: Event_Countdown and the following 7 are all decremented together!
-	Event_Countdown:	.ds 1
+	Event_Countdown:	.ds 1	; $0510
 
-	Player_TailCount:	.ds 1	; Determines display frame of tail wag
-	Player_InAir_OLD:	.ds 1	; Stores backup of Player_InAir
-	Player_FireCount:		; Player shoots fireball/hammer, sets sprite frame (shared with Player_FrogHopCnt)
-	Player_FrogHopCnt:	.ds 1	; Counter used for frog hopping along the ground (shared with Player_FireCount)
+	Player_TailCount:	.ds 1	; $0511 Determines display frame of tail wag
+	Player_InAir_OLD:	.ds 1	; $0512 Stores backup of Player_InAir
+	Player_FireCount:		; $0513 Player shoots fireball/hammer, sets sprite frame (shared with Player_FrogHopCnt)
+	Player_FrogHopCnt:	.ds 1	; $0513 Counter used for frog hopping along the ground (shared with Player_FireCount)
 
 				.ds 1	; $0514 unused
 
-	Player_PMeterCnt:	.ds 1	; Tick counter used to count when to increase/decrease Power Meter
-	B10Coin_Timer:		.ds 1	; Decrements until zero, which is how much time you have to get the max coins from a 10 coin block
-	Player_TailAttack:	.ds 1	; Initiailized to $12; counts down to zero, performs tail attack!
+	Player_PMeterCnt:	.ds 1	; $0515 Tick counter used to count when to increase/decrease Power Meter
+	B10Coin_Timer:		.ds 1	; $0516 Decrements until zero, which is how much time you have to get the max coins from a 10 coin block
+	Player_TailAttack:	.ds 1	; $0517 Initiailized to $12; counts down to zero, performs tail attack!
 
-	CineKing_Timer:			; Timer; decrements to zero (shares Objects_Timer first byte)
+	CineKing_Timer:			; $0518 Timer; decrements to zero (shares Objects_Timer first byte)
 	Objects_Timer:		.ds 8	; $0518-$051F "Timer" values; automatically decrements to zero
 
 	; NOTE: Until Timer2 expires, object will not hit other objects.
@@ -1565,10 +1564,10 @@ PAUSE_RESUMEMUSIC	= $02	; Resume sound (resumes music)
 	Objects_Timer2:		.ds 8	; $0520-$0527 "Timer" values; automatically decrements to zero 
 
 	; All the Level_BlockChgX/Y values are aligned to nearest 16 (i.e. tile coordinate)
-	Level_BlockChgXHi:	.ds 1	; Player X High value when block change was queued
-	Level_BlockChgXLo:	.ds 1	; Player X Low value when block change was queued
-	Level_BlockChgYHi:	.ds 1	; Player Y High value when block change was queued
-	Level_BlockChgYLo:	.ds 1	; Player Y Low value when block change was queued
+	Level_BlockChgXHi:	.ds 1	; $0528 Player X High value when block change was queued
+	Level_BlockChgXLo:	.ds 1	; $0529 Player X Low value when block change was queued
+	Level_BlockChgYHi:	.ds 1	; $052A Player Y High value when block change was queued
+	Level_BlockChgYLo:	.ds 1	; $$052B Player Y Low value when block change was queued
 
 	; the block "bounce" that occurs after hitting ? block, music note block, etc.
 	Level_BlkBump_Pos:	.ds 2	; $052C-$052D Block bump effect slot "position" (from 10 down, "position" of bounce)
@@ -1581,46 +1580,46 @@ PAUSE_RESUMEMUSIC	= $02	; Resume sound (resumes music)
 				.ds 5	; $053D-$0541 unused
 
 	; The alternate vertical scrolls are used so that raster effects can be properly implemented!
-	Level_VertScrollH:	.ds 1	; Alternate VertScroll_Hi used by engine, adjusted before being sent to Vert_Scroll_Hi
-	Level_VertScroll:	.ds 1	; Alternate VertScroll used by engine, adjusted before being sent to Vert_Scroll
+	Level_VertScrollH:	.ds 1	; $0542 Alternate VertScroll_Hi used by engine, adjusted before being sent to Vert_Scroll_Hi
+	Level_VertScroll:	.ds 1	; $0543 Alternate VertScroll used by engine, adjusted before being sent to Vert_Scroll
 
-	Player_AboveTop:	.ds 1	; If Player is above top of level, this is $FF (-1), otherwise it is zero
+	Player_AboveTop:	.ds 1	; $0544 If Player is above top of level, this is $FF (-1), otherwise it is zero
 
-	Level_InitAction:		; AT LEVEL INITIALIZATION ONLY: Performs a specific initialization routine (NOTE: Shared with Player_Slide)
-	Player_Slide:		.ds 1	; Positive values sliding forward, negative values sliding backward; directly sets Player_XVel
+	Level_InitAction:		; $0545 AT LEVEL INITIALIZATION ONLY: Performs a specific initialization routine (NOTE: Shared with Player_Slide)
+	Player_Slide:		.ds 1	; $0545 Positive values sliding forward, negative values sliding backward; directly sets Player_XVel
 
-	Player_UphillFlag:	.ds 1	; When set, Player is walking uphill, and uses speed index value at Player_UphillSpeedIdx
+	Player_UphillFlag:	.ds 1	; $0546 When set, Player is walking uphill, and uses speed index value at Player_UphillSpeedIdx
 
 				.ds 8	; $0547-$054E unused
 
-	Player_Flip:		.ds 1	; Invincibility Somersault is used when set; only works in air, reset on ground
+	Player_Flip:		.ds 1	; $054F Invincibility Somersault is used when set; only works in air, reset on ground
 
-	Level_AirshipH:			; Height of the airship during the Airship Intro (shared with Player_KuriboDir)
-	Player_KuriboDir:	.ds 1	; While Kuribo's shoe is moving: 0 - Not requesting move, 1 - move right, 2 - move left
+	Level_AirshipH:			; $0550 Height of the airship during the Airship Intro (shared with Player_KuriboDir)
+	Player_KuriboDir:	.ds 1	; $0550 While Kuribo's shoe is moving: 0 - Not requesting move, 1 - move right, 2 - move left
 
-	Player_Grow:		.ds 1	; Tick counter used to animate growth into Super Mario (20 is starting value, or 2f to shrink)
-	Player_FlashInv:	.ds 1	; Player "flashing invincibility" after being hit, counts down to zero
-	Player_StarInv:		.ds 1	; Starman Invincibility counter; full/fatal invincibility, counts down to zero
-	Player_SuitLost:	.ds 1	; Suit lost to hit discard "poof" counter
-	Player_StarOff:		.ds 1	; Starman Invincibility wear-off (the last second or so when it slows and vanishes), counts down to zero
-	Player_HaltTick:	.ds 1	; When non-zero, all action halts until this countdown hits zero
-	Player_Kick:		.ds 1	; Kick frame in use, counts down to zero
-	Player_PipeFace:	.ds 1	; Player forward frame, used for vertical pipe entrance, counts down to zero
-	Player_EndLevel:	.ds 1	; Player's end of level run-off until count down to zero (player will actually wrap around horizontally if too large)
-	Level_AirshipCtl:	.ds 1	; Airship control -- 1 = run and jump to catch air ship, 2 = climb to enter, 3 = enter
+	Player_Grow:		.ds 1	; $0551 Tick counter used to animate growth into Super Mario (20 is starting value, or 2f to shrink)
+	Player_FlashInv:	.ds 1	; $0552 Player "flashing invincibility" after being hit, counts down to zero
+	Player_StarInv:		.ds 1	; $0553 Starman Invincibility counter; full/fatal invincibility, counts down to zero
+	Player_SuitLost:	.ds 1	; $0554 Suit lost to hit discard "poof" counter
+	Player_StarOff:		.ds 1	; $0555 Starman Invincibility wear-off (the last second or so when it slows and vanishes), counts down to zero
+	Player_HaltTick:	.ds 1	; $0556 When non-zero, all action halts until this countdown hits zero
+	Player_Kick:		.ds 1	; $0557 Kick frame in use, counts down to zero
+	Player_PipeFace:	.ds 1	; $0558 Player forward frame, used for vertical pipe entrance, counts down to zero
+	Player_EndLevel:	.ds 1	; $0559 Player's end of level run-off until count down to zero (player will actually wrap around horizontally if too large)
+	Level_AirshipCtl:	.ds 1	; $055A Airship control -- 1 = run and jump to catch air ship, 2 = climb to enter, 3 = enter
 
 				.ds 1	; $055B unused
 
-	Counter_Wiggly:		.ds 1	; "Wiggly" counter, provides rippled movement (like the airship rising during its intro)
-	Counter_7to0:		.ds 1	; Counter that runs from 7 to 0 continuously while level is in progress
+	Counter_Wiggly:		.ds 1	; $055C "Wiggly" counter, provides rippled movement (like the airship rising during its intro)
+	Counter_7to0:		.ds 1	; $055D Counter that runs from 7 to 0 continuously while level is in progress
 
 				.ds 1	; $055E unused
 
-	LevelPartialInit:	.ds 1	; When set, performs a partial reinitialization of level data (notably does not perform the Level InitAction unless it is airship related)
-	Level_TilesetIdx:	.ds 1	; Holds Level_Tileset as an "index" value instead, relative to levels (i.e. Level_Tileset - 1)
-	Level_ChangeReset:	.ds 1	; When set to zero, a mass reset is performed (used when changing "scenes" in a single level)
-	Level_UnusedFlag:	.ds 1	; Unused; only set in a couple places, but never read back!
-	Level_SlopeEn:		.ds 1	; If set, enables slope tiles (otherwise they're considered flat top-only solids)
+	LevelPartialInit:	.ds 1	; $055F When set, performs a partial reinitialization of level data (notably does not perform the Level InitAction unless it is airship related)
+	Level_TilesetIdx:	.ds 1	; $0560 Holds Level_Tileset as an "index" value instead, relative to levels (i.e. Level_Tileset - 1)
+	Level_ChangeReset:	.ds 1	; $0561 When set to zero, a mass reset is performed (used when changing "scenes" in a single level)
+	Level_UnusedFlag:	.ds 1	; $0562 Unused; only set in a couple places, but never read back!
+	Level_SlopeEn:		.ds 1	; $0563 If set, enables slope tiles (otherwise they're considered flat top-only solids)
 
 CHNGTILE_DELETECOIN	= $01
 CHNGTILE_DELETETOBG	= $02
@@ -1644,24 +1643,24 @@ CHNGTILE_4WAYCANNON	= $15
 CHNGTILE_GIANTBRICKBUST	= $16	; Giant World brick bust
 CHNGTILE_GIANTBLOCKHIT	= $17	; Giant World [?] block hit to metal
 CHNGTILE_GIANTBRICKFIX	= $18	; Giant World brick restore (small Mario hit giant brick)
-	Level_ChgTileEvent:	.ds 1	; When non-zero, queues a "change tile" event
+	Level_ChgTileEvent:	.ds 1	; $0564 When non-zero, queues a "change tile" event
 
-	Level_NoStopCnt:	.ds 1	; A counter which continuously increments unless something is "stopping" the action
-	Level_Event:		.ds 1	; Check "LevelEvent_Do" for values; 0 means nothing
-	Level_PSwitchCnt:	.ds 1	; When non-zero, P-Switch is active (init @ $80); counts down to zero and restarts music
+	Level_NoStopCnt:	.ds 1	; $0565 A counter which continuously increments unless something is "stopping" the action
+	Level_Event:		.ds 1	; $0566 Check "LevelEvent_Do" for values; 0 means nothing
+	Level_PSwitchCnt:	.ds 1	; $0567 When non-zero, P-Switch is active (init @ $80); counts down to zero and restarts music
 
 				.ds 1	; $0568 unused
 
-	Player_SlideRate:	.ds 1	; While Player is sliding, this is added to X Velocity (does not persist, however)
+	Player_SlideRate:	.ds 1	; $0569 While Player is sliding, this is added to X Velocity (does not persist, however)
 
 				.ds 1	; $056A unused
 
-	Player_IsClimbing:	.ds 1	; Set when Player is climing vine
-	Player_FlipBits_OLD:	.ds 1	; Holds backup of Player_FlipBits
-	Player_HitCeiling:	.ds 1	; Flag set when Player has just hit head off ceiling
-	Player_FlyTime:		.ds 1	; When > 0, Player can fly (for power ups that do so); decrements (unless $FF) to 0
-	Player_IsDucking:	.ds 1	; Set when Player is ducking down
-	Player_WhiteBlkCnt:	.ds 1	; White block counter; counts up while Player is standing on white block and holding down
+	Player_IsClimbing:	.ds 1	; $056B Set when Player is climing vine
+	Player_FlipBits_OLD:	.ds 1	; $056C Holds backup of Player_FlipBits
+	Player_HitCeiling:	.ds 1	; $056D Flag set when Player has just hit head off ceiling
+	Player_FlyTime:		.ds 1	; $056E When > 0, Player can fly (for power ups that do so); decrements (unless $FF) to 0
+	Player_IsDucking:	.ds 1	; $056F Set when Player is ducking down
+	Player_WhiteBlkCnt:	.ds 1	; $0570 White block counter; counts up while Player is standing on white block and holding down
 
 	; Level_PipeMove is set to various values that dictate 
 	; how Player is moving within a pipe
@@ -1682,60 +1681,60 @@ CHNGTILE_GIANTBRICKFIX	= $18	; Giant World brick restore (small Mario hit giant 
 	; 101xx - In-level transit (a la World 7 pipe mazes and other places; does not set Level_JctCtl)
 	;
 	; If bit 7 IS set, we're moving through the pipe (either exiting out one end or in-transit)
-	Level_PipeMove:		.ds 1
+	Level_PipeMove:		.ds 1	; $0571
 
-	Level_CoinHeav:		.ds 1	; Enter coin heaven when set $80; Increments; at $D0, "soft jump" arrival; terminates at wrap to $00
+	Level_CoinHeav:		.ds 1	; $0572 Enter coin heaven when set $80; Increments; at $D0, "soft jump" arrival; terminates at wrap to $00
 
-	Player_MoveLR:		.ds 1	; 0 - Not moving left/right, 1 - Moving left, 2 - Moving right (reversed from the pad input)
+	Player_MoveLR:		.ds 1	; $0573 0 - Not moving left/right, 1 - Moving left, 2 - Moving right (reversed from the pad input)
 
-	Player_WalkAnimTicks:	.ds 1	; Ticks between animation frames of walking; max value varies by Player's X velocity
+	Player_WalkAnimTicks:	.ds 1	; $0574 Ticks between animation frames of walking; max value varies by Player's X velocity
 
-	Player_InWater:		.ds 1	; Set for when in water (1 = Regular water specifically, other non-zero values indicate waterfall)
-	Player_SwimCnt:		.ds 1	; Swim counter FIXME Describe better 0-3
-	Player_Kuribo:		.ds 1	; Set for Kuribo's Shoe active
-	Player_QueueSuit:	.ds 1	; Queues a suit change (values like Player_Suit, but add 1, EXCEPT: $0F = Statue enable, $40 = Splash, $80 = Kuribo's Shoe)
-	Player_mGoomba:		.ds 1	; Player is caught by a micro Goomba (jump short)
-	Player_Statue:		.ds 1	; Player is in Tanooki Statue mode; counts down to zero
-	Player_RunFlag:		.ds 1	; Set while Player is actually considered "running" (holding down B and at enough speed; doesn't persist)
-	Player_Bounce:		.ds 1	; Set to cause block bounce (upper 4 bits specifies what kind of block will be bounced)
-	Player_BounceDir:	.ds 1	; Direction of Player bounce -- 0 = Down, 1 = Up, 2 = Left, 3 = Right
-	Player_BounceObj:	.ds 1	; Set if it was a kicked shelled object that hit the bounce block (i.e. don't bounce the Player if the object is the one that hit) 
-	Counter_ByPlayerSpd:	.ds 1	; A counter which increments faster as the Player goes faster
+	Player_InWater:		.ds 1	; $0575 Set for when in water (1 = Regular water specifically, other non-zero values indicate waterfall)
+	Player_SwimCnt:		.ds 1	; $0576 Swim counter FIXME Describe better 0-3
+	Player_Kuribo:		.ds 1	; $0577 Set for Kuribo's Shoe active
+	Player_QueueSuit:	.ds 1	; $0578 Queues a suit change (values like Player_Suit, but add 1, EXCEPT: $0F = Statue enable, $40 = Splash, $80 = Kuribo's Shoe)
+	Player_mGoomba:		.ds 1	; $0579 Player is caught by a micro Goomba (jump short)
+	Player_Statue:		.ds 1	; $057A Player is in Tanooki Statue mode; counts down to zero
+	Player_RunFlag:		.ds 1	; $057B Set while Player is actually considered "running" (holding down B and at enough speed; doesn't persist)
+	Player_Bounce:		.ds 1	; $057C Set to cause block bounce (upper 4 bits specifies what kind of block will be bounced)
+	Player_BounceDir:	.ds 1	; $057D Direction of Player bounce -- 0 = Down, 1 = Up, 2 = Left, 3 = Right
+	Player_BounceObj:	.ds 1	; $057E Set if it was a kicked shelled object that hit the bounce block (i.e. don't bounce the Player if the object is the one that hit) 
+	Counter_ByPlayerSpd:	.ds 1	; $057F A counter which increments faster as the Player goes faster
 
-	Level_HAutoScroll:	.ds 1	; When set to 1, "auto horizontal scroll" is active (this can be toggled mid-level)
-	B10Coin_Count:		.ds 1	; Decrements until -1, you continue to get a coin until it does so
-	B10Coin_ID:		.ds 1	; Forms a sort of unique ID so game knows if you've switched blocks
+	Level_HAutoScroll:	.ds 1	; $0580 When set to 1, "auto horizontal scroll" is active (this can be toggled mid-level)
+	B10Coin_Count:		.ds 1	; $0581 Decrements until -1, you continue to get a coin until it does so
+	B10Coin_ID:		.ds 1	; $0582 Forms a sort of unique ID so game knows if you've switched blocks
 
-	Player_OffScreen:	.ds 1	; Set when Player is completely off screen
+	Player_OffScreen:	.ds 1	; $0583 Set when Player is completely off screen
 
 	; FloatLevel_PlayerWaterStat: For levels that "float" and have a fixed set of water at the bottom
 	; Bit 6: Set if Player is beneath bottom of water
 	; Bit 7: Set if beneath top of water
-	FloatLevel_PlayerWaterStat:	.ds 1
+	FloatLevel_PlayerWaterStat:	.ds 1	; $0584 
 
 
-	Player_LowClearance:	.ds 1	; Set when Player is in a "low clearance" situation (big Mario in a single block high tunnel)
+	Player_LowClearance:	.ds 1	; $0585 Set when Player is in a "low clearance" situation (big Mario in a single block high tunnel)
 
-	PUp_StarManFlash:	.ds 1	; Set when a Starman is bouncing about so it cycles colors! (also used to get super suit if set in advance)
+	PUp_StarManFlash:	.ds 1	; $0586 Set when a Starman is bouncing about so it cycles colors! (also used to get super suit if set in advance)
 
 	; Player_Behind_En:
 	; Specifies whether the "Behind the scenes" effect is actually active
 	; If the Player has stepped out from behind the background, it can be
 	; still active, but he won't get the effect of it!
-	Player_Behind_En:	.ds 1
-	Player_Behind:		.ds 1	; When non-zero, Player is "behind the scenes" (as by white block)
+	Player_Behind_En:	.ds 1	; $0587 
+	Player_Behind:		.ds 1	; $0588 When non-zero, Player is "behind the scenes" (as by white block)
 
-	Player_Slippery:	.ds 1	; 0 = Ground is not slippery, 1 = Ground is a little slippery, 2 = Ground is REALLY slippery
-	Player_SandSink:	.ds 1	; Sinking in quicksand! (holds Y when quicksand hit in upper 4 bits, bit 0 sets '0' jumping, '1' sinking)
+	Player_Slippery:	.ds 1	; $0589 0 = Ground is not slippery, 1 = Ground is a little slippery, 2 = Ground is REALLY slippery
+	Player_SandSink:	.ds 1	; $058A Sinking in quicksand! (holds Y when quicksand hit in upper 4 bits, bit 0 sets '0' jumping, '1' sinking)
 
 	; Player_PartDetEn: "32 Pixel Partition Detection" enabler
 	; When set, if Player Y >= 160, Player detects bottom two rows of tiles implicitly
 	; Used with Update_Request = UPDATERASTER_32PIXPART if there's a floor 
 	; (i.e. NOT used in levels with fixed water; for that, see FloatLevel_PlayerWaterStat)
-	Player_PartDetEn:	.ds 1
-	Player_InPipe:		.ds 1	; Player is going through pipe
-	Player_MushFall:	.ds 1	; Set to 0 when mushroom is to fall to the left, 1 to the right
-	Player_SprOff:		.ds 1	; Player sprite offset (NOTE: Should be multiples of 4, otherwise bad unaligned stuff happens!)
+	Player_PartDetEn:	.ds 1	; $058B 
+	Player_InPipe:		.ds 1	; $058C Player is going through pipe
+	Player_MushFall:	.ds 1	; $058D Set to 0 when mushroom is to fall to the left, 1 to the right
+	Player_SprOff:		.ds 1	; $058E Player sprite offset (NOTE: Should be multiples of 4, otherwise bad unaligned stuff happens!)
 
 	; Strange gapping here; there's pretty much enough room for a couple more special objects
 	Object_SprRAM:		.ds 8	; $058F-$0596 Sprite_RAM offset by object
@@ -1772,14 +1771,14 @@ CHNGTILE_GIANTBRICKFIX	= $18	; Giant World brick restore (small Mario hit giant 
 
 				.ds 8	; $05E5-$05EC unused
 
-	Misc_Counter:		.ds 1	; Miscellaneous loop counter ?
-	Level_TimerMSD:		.ds 1	; Leftmost / most significant digit on timer
-	Level_TimerMid:		.ds 1	; Middle digit on timer
-	Level_TimerLSD:		.ds 1	; Rightmost / least significant digit on timer
-	Level_TimerTick:	.ds 1	; Timer decrementing tick
-	Inventory_Open:		.ds 1	; Set when inventory panel is open, also used to dictate whether it is "opening" (1) or "closing" (0)
-	Level_TimerEn:		.ds 1	; Set to disable clock (bit 7 will also disable level animations, e.g. '?s')
-	Kill_Tally:		.ds 1	; Counter that increases with each successful hit of an object without touching the ground
+	Misc_Counter:		.ds 1	; $05ED Miscellaneous loop counter ?
+	Level_TimerMSD:		.ds 1	; $05EE Leftmost / most significant digit on timer
+	Level_TimerMid:		.ds 1	; $05EF Middle digit on timer
+	Level_TimerLSD:		.ds 1	; $05F0 Rightmost / least significant digit on timer
+	Level_TimerTick:	.ds 1	; $05F1 Timer decrementing tick
+	Inventory_Open:		.ds 1	; $05F2 Set when inventory panel is open, also used to dictate whether it is "opening" (1) or "closing" (0)
+	Level_TimerEn:		.ds 1	; $05F3 Set to disable clock (bit 7 will also disable level animations, e.g. '?s')
+	Kill_Tally:		.ds 1	; $05F4 Counter that increases with each successful hit of an object without touching the ground
 
 	Objects_KillTally:	.ds 5	; $05F5-$05F9 OBJECT SLOTS 0 - 4 ONLY: Kill_Tally for a kicked shell as it hits other enemies 
 
@@ -1789,15 +1788,15 @@ CHNGTILE_GIANTBRICKFIX	= $18	; Giant World brick restore (small Mario hit giant 
 	; value enables auto scroll adjustments, but officially ASCONFIG_ENABLE is used to enable it
 ASCONFIG_ENABLE		= $01	; Enables auto scroll coordinate adjustments of any sort
 ASCONFIG_HDISABLE	= $80	; Disables horizontal auto scroll coordinate adjustment (generally if Horz Auto Scroll is not in use)
-	Level_AScrlConfig:	.ds 1
+	Level_AScrlConfig:	.ds 1	; $05FC 
 
-	Cine_ToadKing:		.ds 1	; Set to 1, initializes Toad and transformed king; set to 2 while running that cinematic
+	Cine_ToadKing:		.ds 1	; $05FD Set to 1, initializes Toad and transformed king; set to 2 while running that cinematic
 	; The diagonal auto scroller wraps vertically several times to give the illusion
 	; of a long vertical strip.  AScrlURDiag_WrapState is set to 1 and 2 during this
 	; process which makes it possible.  Objects that need to offset themselves to
 	; cope with this behavior utilize AScrlURDiag_WrapState_Copy to stay in sync.
-	AScrlURDiag_WrapState_Copy:	.ds 1	; Copy of AScrlURDiag_WrapState
-	AScrlURDiag_WrapState:		.ds 1
+	AScrlURDiag_WrapState_Copy:	.ds 1	; $05FE Copy of AScrlURDiag_WrapState
+	AScrlURDiag_WrapState:		.ds 1	; $05FF
 
 	; ASSEMBLER BOUNDARY CHECK, END OF $0600
 .BoundGame_0600:	BoundCheck .BoundGame_0600, $0600, $05xx Gameplay context
@@ -1816,12 +1815,12 @@ ASCONFIG_HDISABLE	= $80	; Disables horizontal auto scroll coordinate adjustment 
 
 				.ds 2	; $0600-$0601 unused
 
-	Level_Tile_Head:	.ds 1	; Tile at Player's head 
-	Level_Tile_GndL:	.ds 1	; Tile at Player's feet left
-	Level_Tile_GndR:	.ds 1	; Tile at Player's feet right
-	Level_Tile_InFL:	.ds 1	; Tile "in front" of Player ("lower", at feet)
-	Level_Tile_InFU:	.ds 1	; Tile "in front" of Player ("upper", at face)
-	Level_Tile_Whack:	.ds 1	; Tile last hit by tail attack or shell
+	Level_Tile_Head:	.ds 1	; $0602 Tile at Player's head 
+	Level_Tile_GndL:	.ds 1	; $0603 Tile at Player's feet left
+	Level_Tile_GndR:	.ds 1	; $0604 Tile at Player's feet right
+	Level_Tile_InFL:	.ds 1	; $0605 Tile "in front" of Player ("lower", at feet)
+	Level_Tile_InFU:	.ds 1	; $0606 Tile "in front" of Player ("upper", at face)
+	Level_Tile_Whack:	.ds 1	; $0607 Tile last hit by tail attack or shell
 	Level_Tile_Quad:	.ds 4	; $0608-$060B Quadrant of tile for each of the positions above
 
 				.ds 1	; $060C unused
@@ -1835,7 +1834,7 @@ ASCONFIG_HDISABLE	= $80	; Disables horizontal auto scroll coordinate adjustment 
 
 				.ds 1	; $0611 unused
 
-	Scroll_Cols2Upd:	.ds 1	; Number of 8x8 columns to update (typically set to 32 for a full dirty update)
+	Scroll_Cols2Upd:	.ds 1	; $0612 Number of 8x8 columns to update (typically set to 32 for a full dirty update)
 
 				.ds 6	; $0613-$0618 unused
 
@@ -1851,13 +1850,13 @@ ASCONFIG_HDISABLE	= $80	; Disables horizontal auto scroll coordinate adjustment 
 
 				.ds 8	; $0643-$064A unused
 
-	Object_TileFeet:	.ds 1	; Object tile detected at "feet" of object
-	Object_TileWall:	.ds 1	; Object tile detected in front of object, i.e. a wall
+	Object_TileFeet:	.ds 1	; $064B Object tile detected at "feet" of object
+	Object_TileWall:	.ds 1	; $064C Object tile detected in front of object, i.e. a wall
 
 				.ds 1	; $064D unused
 
-	Object_AttrFeet:	.ds 1	; Object tile quadrant of Object_TileFeet
-	Object_AttrWall:	.ds 1	; Object tile quadrant of Object_TileWall
+	Object_AttrFeet:	.ds 1	; $064E Object tile quadrant of Object_TileFeet
+	Object_AttrWall:	.ds 1	; $064F Object tile quadrant of Object_TileWall
 
 				.ds 1	; $0650 unused
 
@@ -1874,7 +1873,7 @@ OBJSTATE_KICKED		= 5	; Kicked (kicked by Player / spinning shell)
 OBJSTATE_KILLED		= 6	; Killed (flipped over and falling off screen)
 OBJSTATE_SQUASHED	= 7	; Squashed (generally Goomba only)
 OBJSTATE_POOFDEATH	= 8	; "Poof" Death (e.g. Piranha death)
-	Objects_State:		.ds 8
+	Objects_State:		.ds 8	; $0661-$0668
 
 	Objects_Frame:		.ds 8	; $0669-$0670 "Frame" of object (see ObjectGroup_PatternSets)
 
@@ -1886,23 +1885,23 @@ OBJSTATE_POOFDEATH	= 8	; "Poof" Death (e.g. Piranha death)
 	Objects_Var1:		.ds 8	; $0689-$0690 Generic variable 1 for objects
 	Objects_Var2:		.ds 8	; $0691-$0698 Generic variable 2 for objects
 
-	Unused699:		.ds 1	; Absolutely no idea, it is set once in one place and never used again... MAY be lost bonus game related?
+	Unused699:		.ds 1	; $0699 Absolutely no idea, it is set once in one place and never used again... MAY be lost bonus game related?
 
 	; UNUSED Bonus Game Die counter
 	; While the die is rotating, just used as a counter 0 to 3 to time the rolling animation.
 	; After Player would press 'A', this value is immediately set to 0.
 	; In the case of the odd/even game, if the Player "won", it is set to 5 or 6.
-	Bonus_DieCnt:		.ds 1
+	Bonus_DieCnt:		.ds 1	; $069A
 
 				.ds 1	; $069B unused
 
 	Score_Earned:		.ds 2	; $069C-$069D (16-bit value) A "buffer" of score earned to be added to your total, total score stored in Player_Score
-	Score_Temp:		.ds 1	; Temp used when figuring out to display a 3-byte integer worth of score
+	Score_Temp:		.ds 1	; $069E Temp used when figuring out to display a 3-byte integer worth of score
 
 				.ds 5	; $069F-$06A3 unused
 
-	Player_IsHolding:	.ds 1	; Set when Player is holding something (animation effect only)
-	Player_ISHolding_OLD:	.ds 1	; Holds onto whether Player WAS holding onto something (so we can be sure to clear Player_IsHolding)
+	Player_IsHolding:	.ds 1	; $06A4 Set when Player is holding something (animation effect only)
+	Player_ISHolding_OLD:	.ds 1	; $06A5 Holds onto whether Player WAS holding onto something (so we can be sure to clear Player_IsHolding)
 
 ; NOTE!! These object vars are OBJECT SLOT 0 - 4 ONLY!
 
@@ -1916,11 +1915,11 @@ OBJSTATE_POOFDEATH	= 8	; "Poof" Death (e.g. Piranha death)
 
 				.ds 3	; $06B0-$06B2 unused
 
-	Object_SlopeHeight:	.ds 1	; Object calculated slope height
+	Object_SlopeHeight:	.ds 1	; $06B3 Object calculated slope height
 	Buffer_Occupied:	.ds 2	; $06B4-$06B5 Set if respective Object_BufferX/Y buffer is already taken by an object
 
-	Player_UphillSpeedIdx:		; Override when Player_UphillFlag is set (shared with Player_Microgoomba)
-	Player_Microgoomba:	.ds 1	; Microgoomba stuck to Player
+	Player_UphillSpeedIdx:		; $06B6 Override when Player_UphillFlag is set (shared with Player_Microgoomba)
+	Player_Microgoomba:	.ds 1	; $06B6 Microgoomba stuck to Player
 	Objects_InWater:	.ds 5	; $06B7-$06BB Set when object is in water
 
 				.ds 1	; $06BC unused
@@ -1950,21 +1949,21 @@ OBJSTATE_POOFDEATH	= 8	; "Poof" Death (e.g. Piranha death)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	.org $0700
 
-	TileAddr_Off:		.ds 1	; During level loading, specifies an offset into the current Mem_Tile_Addr setting
+	TileAddr_Off:		.ds 1	; $0700 During level loading, specifies an offset into the current Mem_Tile_Addr setting
 
 	; LevLoad_Unused1-4 are initialized when about to load a level, 
 	; but never used.  May have been reserved or intended or 
 	; even debugging, but who knows now...
-	LevLoad_Unused1:	.ds 1
-	LevLoad_Unused2:	.ds 1
-	LevLoad_Unused3:	.ds 1
-	LevLoad_Unused4:	.ds 1
+	LevLoad_Unused1:	.ds 1	; $0701
+	LevLoad_Unused2:	.ds 1	; $0702
+	LevLoad_Unused3:	.ds 1	; $0703
+	LevLoad_Unused4:	.ds 1	; $0704
 
 				.ds 1	; $0705 unused
 
-	LL_ShapeDef:		.ds 1	; During level loading, defines a shape of something (context-specific)
+	LL_ShapeDef:		.ds 1	; $0706 During level loading, defines a shape of something (context-specific)
 
-	Scroll_UpdAttrFlag:	.ds 1	; Set when it is time to update attributes
+	Scroll_UpdAttrFlag:	.ds 1	; $0707 Set when it is time to update attributes
 
 				.ds 2	; $0708-$0709 unused
 
@@ -1978,8 +1977,8 @@ OBJSTATE_POOFDEATH	= 8	; "Poof" Death (e.g. Piranha death)
 	; 06 = Water world
 	; 07 = Toad House
 	; 08 = Vertical pipe maze
-	; 09 = desert level, sand, pyramids (and desert fortress)
-	; 10 = Airship
+	; 09 = Desert level, sand, pyramids (and desert fortress)
+	; 10 = Airship; World 8 autoscroller
 	; 11 = Giant World
 	; 12 = Ice level, frozen "1" style
 	; 13 = Coin heaven / Sky level
@@ -1988,31 +1987,31 @@ OBJSTATE_POOFDEATH	= 8	; "Poof" Death (e.g. Piranha death)
 	; 16 = Spade game sliders
 	; 17 = N-Spade
 	; 18 = 2P vs
-	Level_Tileset:		.ds 1	; Different tilesets which changes the detection and meaning in levels
+	Level_Tileset:		.ds 1	; $070A Different tilesets which changes the detection and meaning in levels
 
-	Bonus_UnusedVH:			; VRAM High address ?? Seems to only be part of an unused routine
-	ToadTalk_VH:		.ds 1	; Cinematic Toad & King / "Toad House" Toad VRAM Address High
+	Bonus_UnusedVH:			; $070B VRAM High address ?? Seems to only be part of an unused routine
+	ToadTalk_VH:		.ds 1	; $070B Cinematic Toad & King / "Toad House" Toad VRAM Address High
 
-	Bonus_UnusedVL:			; VRAM Low address ?? Seems to only be part of an unused routine
-	ToadTalk_VL:		.ds 1	; Cinematic Toad & King / "Toad House" Toad VRAM Address Low
+	Bonus_UnusedVL:			; $070C VRAM Low address ?? Seems to only be part of an unused routine
+	ToadTalk_VL:		.ds 1	; $070C Cinematic Toad & King / "Toad House" Toad VRAM Address Low
 
-	BonusText_CPos:
-	ToadTalk_CPos:		.ds 1	; Cinematic Toad & King / "Toad House" Toad Character Position
+	BonusText_CPos:			; $070D
+	ToadTalk_CPos:		.ds 1	; $070D Cinematic Toad & King / "Toad House" Toad Character Position
 
-	BonusText_CharPause:	.ds 1	; Counter that decrements to zero between letters
-	Bonus_UnusedFlag:	.ds 1	; Doesn't do much besides block an unused subroutine
+	BonusText_CharPause:	.ds 1	; $070E Counter that decrements to zero between letters
+	Bonus_UnusedFlag:	.ds 1	; $070F Doesn't do much besides block an unused subroutine
 
-	Map_Pan_Count:		.ds 1	; Map is panning, counts to zero (Scroll_LastDir sets which direction we're panning)
+	Map_Pan_Count:		.ds 1	; $0710 Map is panning, counts to zero (Scroll_LastDir sets which direction we're panning)
 
 	; NOTE sharing
-	CineKing_Timer2:		; Timer; decrements to zero
-	Bonus_Timer:			; Decrements to zero
-	Map_Intro_Tick:		.ds 1	; Counts down to zero while displaying the "World X" intro
+	CineKing_Timer2:		; $0711 Timer; decrements to zero
+	Bonus_Timer:			; $0711 Decrements to zero
+	Map_Intro_Tick:		.ds 1	; $0711 Counts down to zero while displaying the "World X" intro
 
 				.ds 1	; $0712 unused
 
-	Map_ReturnStatus:	.ds 1	; When 0, level panel is cleared; otherwise, Player is considered to have died (decrements life!)
-	MaxPower_Tick:		.ds 1	; When Player has maximum "power" charge, this counts for the flashing [P]
+	Map_ReturnStatus:	.ds 1	; $0713 When 0, level panel is cleared; otherwise, Player is considered to have died (decrements life!)
+	MaxPower_Tick:		.ds 1	; $0714 When Player has maximum "power" charge, this counts for the flashing [P]
 	Player_Score:		.ds 3	; $0715 (H)-$0717 (L) treated as 3-byte integer, with least significant zero on display not part of this value 
 
 				.ds 1	; $0718 unused
@@ -2022,54 +2021,54 @@ OBJSTATE_POOFDEATH	= 8	; "Poof" Death (e.g. Piranha death)
 	; 1000 (1/4 sprites), 1400 (2/4 sprites), 1800 (3/4 sprites),
 	; and 1C00 (4/4 sprites), respectively
 	PatTable_BankSel:	.ds 6	; $0719-$071E  Provides an array of 6 pages to set the entire Pattern Table [BG_Full_CHRROM_Switch]
-	PAGE_C000:		.ds 1	; Page to set PRG ROM C000 (PRGROM_Change_Both)
-	PAGE_A000:		.ds 1	; Page to set PRG ROM A000 (PRGROM_Change_Both)
-	PAGE_CMD:		.ds 1	; When using PRGROM_Change_Both2 or PRGROM_Change_A000, this value stores the MMC3 command
+	PAGE_C000:		.ds 1	; $071F Page to set PRG ROM C000 (PRGROM_Change_Both)
+	PAGE_A000:		.ds 1	; $0720 Page to set PRG ROM A000 (PRGROM_Change_Both)
+	PAGE_CMD:		.ds 1	; $0721 When using PRGROM_Change_Both2 or PRGROM_Change_A000, this value stores the MMC3 command
 	Map_Prev_XOff:		.ds 2	; $0722-$0723 (Mario/Luigi) Stores previous scroll X offset on map
 	Map_Prev_XHi:		.ds 2	; $0724-$0725 (Mario/Luigi) Stores previous "hi byte" of map X
-	Player_Current:		.ds 1	; Which Player is currently up (0 = Mario, 1 = Luigi)
-	World_Num:		.ds 1	; Current world index (0-8, where 0 = World 1, 7 = World 8, 8 = World 9 / Warp Zone)
+	Player_Current:		.ds 1	; $0726 Which Player is currently up (0 = Mario, 1 = Luigi)
+	World_Num:		.ds 1	; $0727 Current world index (0-8, where 0 = World 1, 7 = World 8, 8 = World 9 / Warp Zone)
 
 	; NOTE: sharing
-	World_EnterState:		; State variable during "world X" intro entrance, set to 3 when entering a level; overlaps GameOver_State
-	CineKing_State:			; State of King-got-his-wand-back sequence
-	GameOver_State:		.ds 1	; State variable used during "Gameover!" sequence only; overlaps World_EnterState
+	World_EnterState:		; $0728 State variable during "world X" intro entrance, set to 3 when entering a level; overlaps GameOver_State
+	CineKing_State:			; $0728 State of King-got-his-wand-back sequence
+	GameOver_State:		.ds 1	; $0728 State variable used during "Gameover!" sequence only; overlaps World_EnterState
 
-	Map_Operation:		.ds 1	; Map_Operation: Current "operation" happening on map (See Map_DoOperation in PRG010)
+	Map_Operation:		.ds 1	; $0729 Map_Operation: Current "operation" happening on map (See Map_DoOperation in PRG010)
 
 				.ds 1	; $072A unused
 
-	Total_Players:		.ds 1	; Total players (0 = 1P, 1 = 2P)
-	Map_Unused72C:		.ds 1	; No apparent use; only assigned to, but never read back
-	Bonus_DDDD:		.ds 1	; ?? Set to '1' if you exit the unused bonus game BONUS_UNUSED_DDDD
-	Map_HandState:		.ds 1	; Hand trap state
+	Total_Players:		.ds 1	; $072B Total players (0 = 1P, 1 = 2P)
+	Map_Unused72C:		.ds 1	; $072C No apparent use; only assigned to, but never read back
+	Bonus_DDDD:		.ds 1	; $072D ?? Set to '1' if you exit the unused bonus game BONUS_UNUSED_DDDD
+	Map_HandState:		.ds 1	; $072E Hand trap state
 
 				.ds 1	; $072F unused
 
-	Map_WW_Backup_Y:	.ds 1	; Warp Whistle wind backs up the Player's map Y
+	Map_WW_Backup_Y:	.ds 1	; $0730 Warp Whistle wind backs up the Player's map Y
 
-	Map_WW_Backup_XH:	.ds 1	; Warp Whistle wind backs up the Player's map X Hi byte
-	Map_WW_Backup_X:	.ds 1	; Warp Whistle wind backs up the Player's map X
-	Map_WW_Backup_UPV2:	.ds 1	; Warp Whistle wind backs up Map_UnusedPlayerVal2
+	Map_WW_Backup_XH:	.ds 1	; $0731 Warp Whistle wind backs up the Player's map X Hi byte
+	Map_WW_Backup_X:	.ds 1	; $0732 Warp Whistle wind backs up the Player's map X
+	Map_WW_Backup_UPV2:	.ds 1	; $0733 Warp Whistle wind backs up Map_UnusedPlayerVal2
 
 				.ds 2	; $0734-$0735 unused
 
 	Player_Lives:		.ds 2	; $0736-$0737 (Mario/Luigi) Player's lives
-	Map_Unused738:		.ds 1	; Index used in some dead code in PRG011; sometimes index of unused array Map_Unused7DC6
-	ClearPattern:		.ds 1	; Set by ClearPattern_ByTileset for use in Clear_Nametable_Short
-	PalSel_Tile_Colors:	.ds 1	; Stores value to index which tile color set to use when palette loading routine is called
-	PalSel_Obj_Colors:	.ds 1	; Stores value to index which object color set to use when palette loading routine is called
+	Map_Unused738:		.ds 1	; $0738 Index used in some dead code in PRG011; sometimes index of unused array Map_Unused7DC6
+	ClearPattern:		.ds 1	; $0739 Set by ClearPattern_ByTileset for use in Clear_Nametable_Short
+	PalSel_Tile_Colors:	.ds 1	; $073A Stores value to index which tile color set to use when palette loading routine is called
+	PalSel_Obj_Colors:	.ds 1	; $073B Stores value to index which object color set to use when palette loading routine is called
 	Player_FallToKing:	.ds 2	; $073C-$073D (Mario/Luigi) Player will fall to king when Level_ExitToMap is nonzero (instead of map)
 	Map_Player_SkidBack:	.ds 2	; $073E-$073F (Mario/Luigi) Set to '1' if Player died last turn or otherwise ejected (that is, they DID skid from their last turn, not necessarily currently skidding)
 
-	Map_NSpadeMatches:	.ds 1	; Keeps count of N-Spade matches of active session (9 means game is done)
-	Map_NSpadeInProg:	.ds 1	; If set, there's an N-Spade game "in progress" (so if you lose, you pick it up later)
+	Map_NSpadeMatches:	.ds 1	; $0740 Keeps count of N-Spade matches of active session (9 means game is done)
+	Map_NSpadeInProg:	.ds 1	; $0741 If set, there's an N-Spade game "in progress" (so if you lose, you pick it up later)
 
-	Map_Airship_Trav:	.ds 1	; Airship's current travel-table offset (randomly offset by 0-2, spices up life)
+	Map_Airship_Trav:	.ds 1	; $0742 Airship's current travel-table offset (randomly offset by 0-2, spices up life)
 
 				.ds 2	; $0743-$0744 unused
 
-	Map_DoFortressFX:	.ds 1	; Bust locks, build bridges, whatever after Mini-Fortress is toppled
+	Map_DoFortressFX:	.ds 1	; $0745 Bust locks, build bridges, whatever after Mini-Fortress is toppled
 
 	World_Map_Power:	.ds 2	; $0746-$0747 (Mario/Luigi) MAP Power up # (1 - big, 2 - Fire, 3 - Leaf, 4 - Frog, 5 - Tanooki, 6 - Hammer, 7 - Judgems, 8 - Pwing, 9 - Star)
 
@@ -2079,22 +2078,22 @@ OBJSTATE_POOFDEATH	= 8	; "Poof" Death (e.g. Piranha death)
 
 				.ds 1	; $074B unused
 
-	Object_VelCarry:	.ds 1	; '1' when last Object Velocity fraction accumulation rolled over
+	Object_VelCarry:	.ds 1	; $074C '1' when last Object Velocity fraction accumulation rolled over
 
 	; WARNING: The distance between Player/Objects_XVelFrac and Player/Objects_YVelFrac must be same as Player/Objects_X/YVel!
-	Player_XVelFrac:	.ds 1	; X velocity fractional accumulator
+	Player_XVelFrac:	.ds 1	; $074D X velocity fractional accumulator
 	Objects_XVelFrac:	.ds 8	; $074E-$0755 Other object's X velocity fractional accumulator
 
 				.ds 1	; $0756 unused
 
-	THouse_UnusedFlag:	.ds 1	; Cleared when Toad House gives you an item, but never used otherwise
+	THouse_UnusedFlag:	.ds 1	; $0757 Cleared when Toad House gives you an item, but never used otherwise
 
 				; WARNING: Though unused, this is required for the consistent padding between XVel(Frac) and YVel(Frac)
 				; So use it if you want, but maintain the distance!!
 				.ds 7	; $0758-$075E unused
 
 	; WARNING: The distance between Player/Objects_XVelFrac and Player/Objects_YVelFrac must be same as Player/Objects_X/YVel!
-	Player_YVelFrac:	.ds 1	; Y velocity fractional accumulator
+	Player_YVelFrac:	.ds 1	; $075F Y velocity fractional accumulator
 	Objects_YVelFrac:	.ds 8	; $0760-$0767 Other object's Y velocity fractional accumulator
 
 	Objects_ColorCycle:	.ds 8	; $0768-$076F Cycles colors of object and decrements to zero (e.g. "Melting" ice block, starman, etc.)
@@ -2106,21 +2105,21 @@ OBJSTATE_POOFDEATH	= 8	; "Poof" Death (e.g. Piranha death)
 	Objects_Var6:		.ds 5	; $0770-$0774 General purpose variable 6 (except as noted above)
 	Objects_TargetingXVal:	.ds 5	; $0775-$0779 X velocity result of Object_CalcHomingVels for this object OR some other X pixel target
 
-	King_Y:				; Y position (NOTE: shared with Objects_TargetingYVal)
+	King_Y:				; $077A Y position (NOTE: shared with Objects_TargetingYVal)
 	Objects_TargetingYVal:	.ds 5	; $077A-$077E Y velocity result of Object_CalcHomingVels for this object OR some other Y pixel target
 
-	Pipe_TransYDelta:		; In-level transit pipe Y delta value (WARNING: Shared with Level_ScrollDiffV)
-	Level_ScrollDiffV:	.ds 1	; Difference between desired vertical and the current Vert_Scroll (WARNING: Shared with Pipe_TransYDelta)
-	Level_ScrollDiffH:	.ds 1	; Difference between desired horizontal and the current Horz_Scroll
+	Pipe_TransYDelta:		; $077F In-level transit pipe Y delta value (WARNING: Shared with Level_ScrollDiffV)
+	Level_ScrollDiffV:	.ds 1	; $077F Difference between desired vertical and the current Vert_Scroll (WARNING: Shared with Pipe_TransYDelta)
+	Level_ScrollDiffH:	.ds 1	; $0780 Difference between desired horizontal and the current Horz_Scroll
 
-	Random_Pool:		.ds 10	; $0781-$078A (or $0789?) Data pool for pseudo-random number generator algorithm
+	Random_Pool:		.ds 10	; $0781-$0789 Data pool for pseudo-random number generator algorithm
 RandomN = Random_Pool+1			; Pull a random number from the sequence (NOTE: RandomN+1 is also good; If you need multiple random numbers, call Randomize)
 
-	Map_PlayerLost2PVs:	.ds 1	; When > 0, (1=Mario, 2=Luigi) doesn't lose a life for "death" exiting to map, but does lose their turn
+	Map_PlayerLost2PVs:	.ds 1	; $078B When > 0, (1=Mario, 2=Luigi) doesn't lose a life for "death" exiting to map, but does lose their turn
 
 				.ds 1	; $078C unused
 
-	Player_RescuePrincess:	.ds 1	; Player will jump to the princess rescue when Level_ExitToMap is nonzero (instead of map)
+	Player_RescuePrincess:	.ds 1	; $078D Player will jump to the princess rescue when Level_ExitToMap is nonzero (instead of map)
 
 				.ds 8	; $078E-$0795 unused
 
@@ -2136,30 +2135,30 @@ RandomN = Random_Pool+1			; Pull a random number from the sequence (NOTE: Random
 	Scores_Y:		.ds 5	; $07A8-$07AC Score's Y
 	Scores_X:		.ds 5	; $07AD-$07B1 Score's X
 
-	LRBounce_Y:		.ds 1	; Left/right bouncer as sprite Y ($FF is disabled)
-	LRBounce_X:		.ds 1	; Left/right bouncer as sprite X
-	LRBounce_Vel:		.ds 1	; Left/right bouncer absolute value of X velocity
+	LRBounce_Y:		.ds 1	; $07B2 Left/right bouncer as sprite Y ($FF is disabled)
+	LRBounce_X:		.ds 1	; $07B3 Left/right bouncer as sprite X
+	LRBounce_Vel:		.ds 1	; $07B4 Left/right bouncer absolute value of X velocity
 
 	; NOTE!! These object vars are OBJECT SLOT 0 - 4 ONLY!
 	Objects_Slope:		.ds 5	; $07B5-$07B9 Absolute slope calc value
 
 				.ds 1	; $07BA unused
 
-	World3_Bridge:		.ds 1	; 0 - Bridges are down, 1 - Bridges are up
+	World3_Bridge:		.ds 1	; $07BB 0 - Bridges are down, 1 - Bridges are up
 
-	ArrowPlat_IsActive:	.ds 1	; Set if arrow platform is active
+	ArrowPlat_IsActive:	.ds 1	; $07BC Set if arrow platform is active
 
-	Level_GetWandState:	.ds 1	; See Koopaling code in PRG001
+	Level_GetWandState:	.ds 1	; $07BD See Koopaling code in PRG001
 
 ; ********************************************************************************
 ; The Palette_* vars here form a graphics buffer to be committed in the
 ; style of the Video_Upd_Table; see "Video_Upd_Table" in PRG030 for format.
-	Video_DoPalUpd:			; Name consistent with Video_Upd_Table 
-	Palette_AddrHi:		.ds 1	; Stores high part of palette address when committing palettes
-	Palette_AddrLo:		.ds 1	; Stores low part of palette address when committing palettes
-	Palette_BufCnt:		.ds 1	; 32 for updating entire palette
+	Video_DoPalUpd:			; $07BE Name consistent with Video_Upd_Table 
+	Palette_AddrHi:		.ds 1	; $07BE Stores high part of palette address when committing palettes
+	Palette_AddrLo:		.ds 1	; $07BF Stores low part of palette address when committing palettes
+	Palette_BufCnt:		.ds 1	; $07C0 32 for updating entire palette
 	Palette_Buffer:		.ds 32	; $07C1-$07E0 Buffer of palette bytes to commit, used for fade in/out
-	Palette_Term:		.ds 1	; Set to zero as terminator, per requirement of the Video_Upd_Table format
+	Palette_Term:		.ds 1	; $07E1 Set to zero as terminator, per requirement of the Video_Upd_Table format
 ; ********************************************************************************
 
 ; BigQBlock_GotIt: 
@@ -2169,33 +2168,33 @@ RandomN = Random_Pool+1			; Pull a random number from the sequence (NOTE: Random
 ;	See ObjInit_BigQBlock and ObjNorm_BigQBlock for usage...
 ;	NOTE: This is cleared completely upon Player death which works since levels
 ;	are not re-enterable, but still seems a bit extreme...
-	BigQBlock_GotIt:	.ds 1
+	BigQBlock_GotIt:	.ds 1	; $07E2
 
 				.ds 13	; $07E3-$07EF unused
 
-	DMC_Queue:		.ds 1	; Stores value to play on DMC
-	DMC_Current:		.ds 1	; Currently playing DMC sound
+	DMC_Queue:		.ds 1	; $07F0 Stores value to play on DMC
+	DMC_Current:		.ds 1	; $07F1 Currently playing DMC sound
 
-	Sound_Sq1_CurFL:	.ds 1	; Holds current "low" frequency of Square Wave 1 (Warning: Must be +4 to Sound_Sq2_CurFL, see PRG031_E808)
+	Sound_Sq1_CurFL:	.ds 1	; $07F2 Holds current "low" frequency of Square Wave 1 (Warning: Must be +4 to Sound_Sq2_CurFL, see PRG031_E808)
 
-	Music_NseStart:		.ds 1	; Holds the starting offset of the noise track (CHECK: Reuse of $07F3, is this bad??)
+	Music_NseStart:		.ds 1	; $07F3 Holds the starting offset of the noise track (CHECK: Reuse of $07F3, is this bad??)
 
 				.ds 1	; $07F4 unused, but required for padding
 
-	Music2_Hold:		.ds 1	; A very little used feature, Music Set 1 overrides Music Set 2, but after a M1 song finishes, it restarts the M2 song
-	Sound_Sq2_CurFL:	.ds 1	; Holds current "low" frequency of Square Wave 1 (Warning: Must be +4 from Sound_Sq1_CurFL, see PRG031_E808)
+	Music2_Hold:		.ds 1	; $07F5 A very little used feature, Music Set 1 overrides Music Set 2, but after a M1 song finishes, it restarts the M2 song
+	Sound_Sq2_CurFL:	.ds 1	; $07F6 Holds current "low" frequency of Square Wave 1 (Warning: Must be +4 from Sound_Sq1_CurFL, see PRG031_E808)
 
-	Music_Sq2Patch:		.ds 1	; Current "instrument patch" for Square 2 (only upper 4 bits stored, 0ppp 0000)
-	Music_Sq1Patch:		.ds 1	; Current "instrument patch" for Square 1 (only upper 4 bits stored, 0ppp 0000)
+	Music_Sq2Patch:		.ds 1	; $07F7 Current "instrument patch" for Square 2 (only upper 4 bits stored, 0ppp 0000)
+	Music_Sq1Patch:		.ds 1	; $07F8 Current "instrument patch" for Square 1 (only upper 4 bits stored, 0ppp 0000)
 
 				.ds 1	; $07F9 unused
 
-	Sound_Map_L2Hld:	.ds 1	; Same as Sound_Map_LHold, used for the secondary track (Warning: Will be affected by triangle, see PRG031_E808)
-	Sound_Map_Len2:		.ds 1	; Same as Sound_Map_Len, used for the secondary track
-	Sound_Map_LHold:	.ds 1	; Current length setting, used as delay after each byte of map sound (changed by special bytes in range $80-$FF)
-	Sound_Map_Len:		.ds 1	; Countdown tick for current note/rest that map sound effect is on
-	Sound_Map_Off2:		.ds 1	; Same as Sound_Map_Off, used for the secondary track
-	Sound_Unused7FF:	.ds 1	; Cleared once, never used otherwise
+	Sound_Map_L2Hld:	.ds 1	; $07FA Same as Sound_Map_LHold, used for the secondary track (Warning: Will be affected by triangle, see PRG031_E808)
+	Sound_Map_Len2:		.ds 1	; $07FB Same as Sound_Map_Len, used for the secondary track
+	Sound_Map_LHold:	.ds 1	; $07FC Current length setting, used as delay after each byte of map sound (changed by special bytes in range $80-$FF)
+	Sound_Map_Len:		.ds 1	; $07FD Countdown tick for current note/rest that map sound effect is on
+	Sound_Map_Off2:		.ds 1	; $07FE Same as Sound_Map_Off, used for the secondary track
+	Sound_Unused7FF:	.ds 1	; $07FF Cleared once, never used otherwise
 
 	; ASSEMBLER BOUNDARY CHECK, END OF $0800
 .Bound_0800:	BoundCheck .Bound_0800, $0800, $07xx RAM
@@ -2212,7 +2211,7 @@ RandomN = Random_Pool+1			; Pull a random number from the sequence (NOTE: Random
 	.data
 	.org $6800
 
-	Vs_MemStart:			; Should be at "top"; this point and 512 bytes forward are cleared at start of 2P Vs
+	Vs_MemStart:			; $6800 Should be at "top"; this point and 512 bytes forward are cleared at start of 2P Vs
 
 	; Vs_PlayerFrame
 	; 0/1: Standing (0) / walking (0/1) / falling-not-jumped (1) frames
@@ -2284,8 +2283,8 @@ RandomN = Random_Pool+1			; Pull a random number from the sequence (NOTE: Random
 	Vs_PlayerKick:		.ds 2	; $68B5-$68B6 Mario/Luigi Player is kicking until decrements to zero
 	Vs_PlayerDizzy:		.ds 2	; $68B7-$68B8 Mario/Luigi Player "dizzy" face until decrements to zero
 	Vs_PlayerStick:		.ds 2	; $68B9-$68BA Mario/Luigi Mario/Luigi Player "sticking" to ceiling; decrements to zero
-	Vs_PlayerBumpTimer:	.ds 1	; Mario/Luigi Players bumped off eachother (and can't again until zero); decrements to zero
-	Vs_POWBlockCnt:		.ds 1	; POW block counter; decrements to zero; until then, POW shaking!
+	Vs_PlayerBumpTimer:	.ds 1	; $68BB Mario/Luigi Players bumped off eachother (and can't again until zero); decrements to zero
+	Vs_POWBlockCnt:		.ds 1	; $68BC POW block counter; decrements to zero; until then, POW shaking!
 
 	; 2P Vs Object IDs
 VSOBJID_SPINY		= 0	; Spiny
@@ -2303,9 +2302,9 @@ VSOBJID_KICKEDBLOCK	= 11	; Kicked block (from [?] block match)
 
 				.ds 1	; $68C9 unused
 
-	Vs_ObjectSprRAMOff:	.ds 1	; Current object Sprite RAM offset
-	Vs_ObjectSprRAMSel:	.ds 1	; Counter that runs $D to $0 (inclusive) and helps distribute Sprite RAM offsets among the objects
-	Vs_EnemyCount:		.ds 1	; Number of spawned enemies (in the typical game)
+	Vs_ObjectSprRAMOff:	.ds 1	; $68CA Current object Sprite RAM offset
+	Vs_ObjectSprRAMSel:	.ds 1	; $68CB Counter that runs $D to $0 (inclusive) and helps distribute Sprite RAM offsets among the objects
+	Vs_EnemyCount:		.ds 1	; $68CC Number of spawned enemies (in the typical game)
 	Vs_PlayerHaltTimer:	.ds 2	; $68CD-$68CE Mario/Luigi timer which halts gameplay; decrements to zero
 	Vs_ObjHaltTimer:	.ds 12	; $68CF-$68DA Object timer which halts object when greater than zero; decrements to zero
 
@@ -2328,9 +2327,9 @@ VSOBJID_KICKEDBLOCK	= 11	; Kicked block (from [?] block match)
 
 	Vs_PlayerBlkHit:	.ds 2	; $690A-$690B Mario/Luigi Holds Tile_Mem offset to bounce block they hit
 	Vs_PlayerFlashInv:	.ds 2	; $690C-$690D Mario/Luigi Flashing invicibility (?)
-	Vs_SpawnCnt2:		.ds 1	; FIXME describe better
-	Vs_TooLongCnt:		.ds 1	; Increments after each round of spawning; if it overflows, "game ender" fireballs are spawned 
-	Vs_CurIndex:		.ds 1	; Current index (Player or object)
+	Vs_SpawnCnt2:		.ds 1	; $690E FIXME describe better
+	Vs_TooLongCnt:		.ds 1	; $690F Increments after each round of spawning; if it overflows, "game ender" fireballs are spawned 
+	Vs_CurIndex:		.ds 1	; $6910 Current index (Player or object)
 	Vs_PlayerTileU:		.ds 2	; $6911-$6912 Mario/Luigi Tile detected above Player's feet
 
 				.ds 13	; $6913-$691F unused
@@ -2341,14 +2340,14 @@ VSOBJID_KICKEDBLOCK	= 11	; Kicked block (from [?] block match)
 
 	Vs_Random:		.ds 3	; $692D-$692F Random generator for 2P Vs mode
 	Vs_PlayerCoins:		.ds 2	; $6930-$6931 Player's coins (in 2P Vs); 5 wins the match
-	Vs_TimeToExit:		.ds 1	; Decrements to zero then exits the 2P Vs
+	Vs_TimeToExit:		.ds 1	; $6932 Decrements to zero then exits the 2P Vs
 	Vs_ObjectIsLast:	.ds 12	; $6933-$693E Set if this is the last object (turns blue, move fast)
 
 				.ds 1	; $693F unused
 
-	Vs_POWHits:		.ds 1	; Number of times POW block has been hit (disabled on 3)
+	Vs_POWHits:		.ds 1	; $6940 Number of times POW block has been hit (disabled on 3)
 	Vs_PlayerYOff:		.ds 2	; $6941-$6942 Mario/Luigi Y offset applied
-	Vs_UNKGAMECnt:		.ds 1	; Unknown "game" counter; after overflow, we exit
+	Vs_UNKGAMECnt:		.ds 1	; $6943 Unknown "game" counter; after overflow, we exit
 	Vs_PlayerYHi:		.ds 2	; $6944-$6945 Mario/Luigi Y Hi
 	Vs_ObjectYHi:		.ds 12	; $6946-$6951 Object Y Hi
 
@@ -2357,13 +2356,13 @@ VSOBJID_KICKEDBLOCK	= 11	; Kicked block (from [?] block match)
 
 				.ds 1	; $6961 unused
 
-	Vs_AngrySidesteppers:	.ds 1	; When greater than zero, and spawning a Sidestepper, next one is an "angry" Sidestepper (then decrement)
+	Vs_AngrySidesteppers:	.ds 1	; $6962 When greater than zero, and spawning a Sidestepper, next one is an "angry" Sidestepper (then decrement)
 
 				.ds 1	; $6963 unused
 
 	Vs_ObjectVDir:		.ds 12	; $6964-$696F Objects vertical direction (4=Down, 8=Up)
 
-				.ds 1	; $6970
+				.ds 1	; $6970 unused
 
 	Vs_ObjectRestoreXVel:	.ds 12	; $6971-$697C Flipped over object restore X velocity
 
@@ -2375,18 +2374,18 @@ VSOBJID_KICKEDBLOCK	= 11	; Kicked block (from [?] block match)
 
 	Vs_CardFlash:		.ds 2	; $698B-$698C Mario/Luigi Cycles color for card (when picked up from another Player)
 	Vs_HaltTimerBackup:	.ds 15	; $698D-$699B Backs up all halt timers
-	Vs_EnemySet:		.ds 1	; Specifies an index of active enemy set, selecting one of the quintuples from Vs_5EnemySets
-	Vs_ObjectXOff:		.ds 1	; A one-shot X offset for display of object FIXME: When?
+	Vs_EnemySet:		.ds 1	; $699C Specifies an index of active enemy set, selecting one of the quintuples from Vs_5EnemySets
+	Vs_ObjectXOff:		.ds 1	; $699D A one-shot X offset for display of object FIXME: When?
 	Vs_PlayerWalkCnt:	.ds 2	; $699E-$699F Mario/Luigi counts up and overflows to toggle walk frames
 	Vs_PlayerWalkFrame:	.ds 2	; $69A0-$69A1 Mario/Luigi incremented when Vs_PlayerWalkCnt overflows
-	Vs_NextObjectIsLast:	.ds 1	; If there are 5 enemies and this is set, next enemy out is the "last" (turns blue, moves fast)
+	Vs_NextObjectIsLast:	.ds 1	; $69A2 If there are 5 enemies and this is set, next enemy out is the "last" (turns blue, moves fast)
 
 	; Display of "x Up" after getting 3 cards
 	Vs_xUpCnt:		.ds 2	; $69A3-$69A4 Mario/Luigi "x Up" counter
 	Vs_xUpY:		.ds 2	; $69A5-$69A6 Mario/Luigi "x Up" Y pos
 	Vs_xUpX:		.ds 2	; $69A7-$69A8 Mario/Luigi "x Up" X pos
 	Vs_xUpLives:		.ds 2	; $69A9-$69AA Mario/Luigi "x Up" Lives amount (1, 2, 3, 5)
-	Vs_SpawnCnt:		.ds 1	; Spawn counter; increments and triggers spawning
+	Vs_SpawnCnt:		.ds 1	; $69AB Spawn counter; increments and triggers spawning
 
 	; ASSEMBLER BOUNDARY CHECK, 2P VS END OF $7950
 .Bound_7950:	BoundCheck .Bound_7950, $7950, 2P VS RAM
@@ -2405,11 +2404,11 @@ VSOBJID_KICKEDBLOCK	= 11	; Kicked block (from [?] block match)
 Tile_Mem:	.ds 6480	; $6000-$794F Space used to store the 16x16 "tiles" that make up the World Map or Level
 
 	Map_MoveRepeat:		.ds 2	; $7950-$7951 (Mario/Luigi) counts up to $18 and then you keep moving without pause
-	AScrlURDiag_OffsetX:	.ds 1	; When diagonal autoscroller is wrapping, this holds an X offset for Player/Objects to temporarily correct
-	AScrlURDiag_OffsetY:	.ds 1	; When diagonal autoscroller is wrapping, this holds an Y offset for Player/Objects to temporarily correct
-	StatusBar_UpdFl:	.ds 1	; Status bar Update Flag; toggles so to update status bar only every other frame
-	UpdSel_Disable:		.ds 1	; When set, disables the Update_Select routine during the NMI, which halts most activity due to no reported V-Blanking
-	Map_Objects_Itm:	.ds 13	; $7956-$795D, "Item given by" map objects
+	AScrlURDiag_OffsetX:	.ds 1	; $7952 When diagonal autoscroller is wrapping, this holds an X offset for Player/Objects to temporarily correct
+	AScrlURDiag_OffsetY:	.ds 1	; $7953 When diagonal autoscroller is wrapping, this holds an Y offset for Player/Objects to temporarily correct
+	StatusBar_UpdFl:	.ds 1	; $7954 Status bar Update Flag; toggles so to update status bar only every other frame
+	UpdSel_Disable:		.ds 1	; $7955 When set, disables the Update_Select routine during the NMI, which halts most activity due to no reported V-Blanking
+	Map_Objects_Itm:	.ds 13	; $7956-$7962, "Item given by" map objects
 
 	; Item that will be given by treasure box; set by the object OBJ_TREASURESET by its row
 	; Level_TreasureItem:
@@ -2427,26 +2426,26 @@ Tile_Mem:	.ds 6480	; $6000-$794F Space used to store the 16x16 "tiles" that make
 	; B = Hammer
 	; C = Warp Whistle
 	; D = Music Box
-	Level_TreasureItem:	.ds 1
-	Reset_Latch:		.ds 1	; If this value is anything besides $5A, the reset is run (I assume this is considered a safe value in case of data corruption, e.g. from runaway generator)
-	Map_BonusType:		.ds 1	; 0 = No bonus, 1 = White Toad House, 2 = UNKNOWN WHITE THING (MAPOBJ_UNK0C)
-	Map_BonusCoinsReqd:	.ds 1	; Number of coins you need for White Toad House (or the MAPOBJ_UNK0C thing!); value ranges 0-127
-	Coins_ThisLevel:	.ds 1	; Internal counter of coins earned -this level- (so always starts at 0 and increments)
+	Level_TreasureItem:	.ds 1	; $7963
+	Reset_Latch:		.ds 1	; $7964 If this value is anything besides $5A, the reset is run (I assume this is considered a safe value in case of data corruption, e.g. from runaway generator)
+	Map_BonusType:		.ds 1	; $7965 0 = No bonus, 1 = White Toad House, 2 = UNKNOWN WHITE THING (MAPOBJ_UNK0C)
+	Map_BonusCoinsReqd:	.ds 1	; $7966 Number of coins you need for White Toad House (or the MAPOBJ_UNK0C thing!); value ranges 0-127
+	Coins_ThisLevel:	.ds 1	; $7967 Internal counter of coins earned -this level- (so always starts at 0 and increments)
 
 	Map_NSpade_NextScore:	.ds 3	; $7968 (H)-$796A (L) treated as 3-byte integer
 
-	Map_BonusAppY:		.ds 1	; Map "white" bonus appearance Y (set to Player's last "succeeded" map position)
-	Map_BonusAppXHi:	.ds 1	; Map "white" bonus appearance XHi (set to Player's last "succeeded" map position)
-	Map_BonusAppX:		.ds 1	; Map "white" bonus appearance X (set to Player's last "succeeded" map position)
+	Map_BonusAppY:		.ds 1	; $796B Map "white" bonus appearance Y (set to Player's last "succeeded" map position)
+	Map_BonusAppXHi:	.ds 1	; $796C Map "white" bonus appearance XHi (set to Player's last "succeeded" map position)
+	Map_BonusAppX:		.ds 1	; $796D Map "white" bonus appearance X (set to Player's last "succeeded" map position)
 
-	Map_NoLoseTurn:		.ds 1	; If set, Player does not lose turn after having completed a level (used for Toad House, pipeways, etc.)
-	Map_Got13Warp:		.ds 1	; Set non-zero if Player already got the 1-3 Warp Whistle
-	Map_Anchored:		.ds 1	; Set if anchor is set on this map
-	Map_WhiteHouse:		.ds 1	; Set if you have already earned the White Toad House for this world
-	Map_CoinShip:		.ds 1	; Set if you have already earned the Coin Ship for this world
-	Map_WasInPipeway:	.ds 1	; Set if you just came out of a pipeway
-	EndCard_Flag:		.ds 1	; Set when End Level card is hit (can determine when level has ended)
-	Map_PlyrSprOvrY:	.ds 1	; "Player Sprite Override Y"; If set to $F8 during warp, erases Player's map sprite; otherwise provides a Y to put it at
+	Map_NoLoseTurn:		.ds 1	; $796E If set, Player does not lose turn after having completed a level (used for Toad House, pipeways, etc.)
+	Map_Got13Warp:		.ds 1	; $796F Set non-zero if Player already got the 1-3 Warp Whistle
+	Map_Anchored:		.ds 1	; $7970 Set if anchor is set on this map
+	Map_WhiteHouse:		.ds 1	; $7971 Set if you have already earned the White Toad House for this world
+	Map_CoinShip:		.ds 1	; $7972 Set if you have already earned the Coin Ship for this world
+	Map_WasInPipeway:	.ds 1	; $7973 Set if you just came out of a pipeway
+	EndCard_Flag:		.ds 1	; $7974 Set when End Level card is hit (can determine when level has ended)
+	Map_PlyrSprOvrY:	.ds 1	; $7975 "Player Sprite Override Y"; If set to $F8 during warp, erases Player's map sprite; otherwise provides a Y to put it at
 	Map_Entered_Y:		.ds 2	; $7976-$7977 (Mario/Luigi) Stores the Y value when you enter a level; this is the Y used if you complete the level
 	Map_Entered_XHi:	.ds 2	; $7978-$7979 (Mario/Luigi) Hi byte for Map_Entered_X
 	Map_Entered_X:		.ds 2	; $797A-$797B (Mario/Luigi) Same as Map_Entered_Y, only for X
@@ -2461,29 +2460,29 @@ Tile_Mem:	.ds 6480	; $6000-$794F Space used to store the 16x16 "tiles" that make
 
 	; These define values to use when you junction back
 	; to the level you were before...
-	Level_Jct_HSHi:		.ds 1	; Level junction horizontal scroll high value
-	Level_Jct_HS:		.ds 1	; Level junction horizontal scroll value
-	Level_Jct_VSHi:		.ds 1	; Level junction vertical scroll high value
-	Level_Jct_VS:		.ds 1	; Level junction vertical scroll value
+	Level_Jct_HSHi:		.ds 1	; $798C Level junction horizontal scroll high value
+	Level_Jct_HS:		.ds 1	; $798D Level junction horizontal scroll value
+	Level_Jct_VSHi:		.ds 1	; $798E Level junction vertical scroll high value
+	Level_Jct_VS:		.ds 1	; $798F Level junction vertical scroll value
 
-				.ds 2	; $7990-7991 unused
+				.ds 2	; $7990-$7991 unused
 
-	Map_Unused7992:			; Value used in some dead code in PRG011; cleared elsewhere (NOT SURE if maybe it sometimes meant Bonus_DiePos?)
-	Bonus_DiePos:		.ds 1	; UNUSED Die in the lost bonus games, counts 0-5
+	Map_Unused7992:			; $7992 Value used in some dead code in PRG011; cleared elsewhere (NOT SURE if maybe it sometimes meant Bonus_DiePos?)
+	Bonus_DiePos:		.ds 1	; $7992 UNUSED Die in the lost bonus games, counts 0-5
 
 	Map_Previous_Dir:	.ds 2	; $7993-$7994 (Mario/Luigi) Backup movement dir (remember which way Player moved last) (8=Up, 4=Down, 2=Left, 1=Right)
 
-	Map_Unused7995:		.ds 1	; Unused; cleared but never used otherwise
+	Map_Unused7995:		.ds 1	; $7995 Unused; cleared but never used otherwise
 
-	Player_NoSlopeStick:	.ds 1	; If set, Player does not stick to slopes (noticeable running downhill)
+	Player_NoSlopeStick:	.ds 1	; $7996 If set, Player does not stick to slopes (noticeable running downhill)
 
 				.ds 105	; $7997-$79FF unused
 	; Auto scroll effect variables -- everything to do with screens that aren't scrolling in the normal way
 	; NOTE: Post-airship cinematic scene with Toad and King ONLY uses $7A01-$7A11 MMC3 SRAM (from Level_AScrlSelect to Level_AScrlHVelCarry)
 
-	AScroll_Anchor:		.ds 1	; Used as starting point for $7A00-$7A14 clear, but never actually used in Auto-Scroll
+	AScroll_Anchor:		.ds 1	; $7A00 Used as starting point for $7A00-$7A14 clear, but never actually used in Auto-Scroll
 
-	Level_AScrlSelect:	.ds 1	; Selects auto scroll routine to use (see PRG009_B922)
+	Level_AScrlSelect:	.ds 1	; $7A01 Selects auto scroll routine to use (see PRG009_B922)
 
 	; Values used in horizontal scrolling (Level_AScrlSelect = 0/1) only:
 	; $00: World 3-6 / 1-4
@@ -2504,32 +2503,32 @@ Tile_Mem:	.ds 6480	; $6000-$794F Space used to store the 16x16 "tiles" that make
 	; $11: Coin Ship
 	; $13: World 8 Tank 1
 	; $14: World 8 Tank 2
-	Level_AScrlLimitSel:	.ds 1	; "Limit Selector" for the auto scroll (typically selects an end or a start/end pair, depending on style)
+	Level_AScrlLimitSel:	.ds 1	; $7A02 "Limit Selector" for the auto scroll (typically selects an end or a start/end pair, depending on style)
 
 	; Level_AScrlVar
 	; Variable used for different things depending on the auto scroll style
 	; In horizontal scroll style (Level_AScrlSelect = 0), it's the current "movement" (see table AScroll_Movement)
-	Level_AScrlVar:		.ds 1
+	Level_AScrlVar:		.ds 1	; $7A03
 
-	Level_AScrlLoopSel:	.ds 1	; Currently selected "movement loop" (horizontal only, see AScroll_MovementLoopStart; Just a var in others?)
-	Level_AScrlMoveRepeat:	.ds 1	; Repeat current move until zero (decrements each full expiration of Level_AScrlMoveTicks); $FF when on last move, passes control to movement loop
-	Level_AScrlLoopCurMove:	.ds 1	; Current "movement loop" index (into AScroll_MovementLoop)
-	Level_AScrlSclLastDir:	.ds 1	; Auto scroll "Scroll_LastDir" 
-	Level_AScrlMoveTicks:	.ds 1	; Counts down to zero, decrements Level_AScrlMoveRepeat (goes to next "movement")
-	Level_AScrlTimer:	.ds 1	; Auto scroll counter, decrements to zero
-	Level_AScrlPosHHi:	.ds 1	; Raster effect horizontal "high" position
+	Level_AScrlLoopSel:	.ds 1	; $7A04 Currently selected "movement loop" (horizontal only, see AScroll_MovementLoopStart; Just a var in others?)
+	Level_AScrlMoveRepeat:	.ds 1	; $7A05 Repeat current move until zero (decrements each full expiration of Level_AScrlMoveTicks); $FF when on last move, passes control to movement loop
+	Level_AScrlLoopCurMove:	.ds 1	; $7A06 Current "movement loop" index (into AScroll_MovementLoop)
+	Level_AScrlSclLastDir:	.ds 1	; $7A07 Auto scroll "Scroll_LastDir" 
+	Level_AScrlMoveTicks:	.ds 1	; $7A08 Counts down to zero, decrements Level_AScrlMoveRepeat (goes to next "movement")
+	Level_AScrlTimer:	.ds 1	; $7A09 Auto scroll counter, decrements to zero
+	Level_AScrlPosHHi:	.ds 1	; $7A0A Raster effect horizontal "high" position
 
-				.ds 1	; $7A0B
+				.ds 1	; $7A0B unused
 
-	Level_AScrlPosH:	.ds 1	; Raster effect horizontal position
-	Level_AScrlPosV:	.ds 1	; Raster effect vertical position
-	Level_AScrlHVel:	.ds 1	; Auto scroll horizontal "velocity"
-	Level_AScrlVVel:	.ds 1	; Auto scroll vertical "velocity"
-	Level_AScrlHVelFrac:	.ds 1	; Auto scroll horizontal velocity fractional accumulator 
-	Level_AScrlVVelFrac:	.ds 1	; Auto scroll vertical velocity fractional accumulator 
-	Level_AScrlHVelCarry:	.ds 1	; '1' when last auto scroll H Velocity fraction accumulation rolled over
-	Level_AScrlVVelCarry:	.ds 1	; '1' when last auto scroll V Velocity fraction accumulation rolled over
-	World8Tank_OnTank:	.ds 1	; Set when Player is standing on tank surface in Tank level (as opposed to ground); for the illusion the tank is moving through...
+	Level_AScrlPosH:	.ds 1	; $7A0C Raster effect horizontal position
+	Level_AScrlPosV:	.ds 1	; $7A0D Raster effect vertical position
+	Level_AScrlHVel:	.ds 1	; $7A0E Auto scroll horizontal "velocity"
+	Level_AScrlVVel:	.ds 1	; $7A0F Auto scroll vertical "velocity"
+	Level_AScrlHVelFrac:	.ds 1	; $7A10 Auto scroll horizontal velocity fractional accumulator 
+	Level_AScrlVVelFrac:	.ds 1	; $7A11 Auto scroll vertical velocity fractional accumulator 
+	Level_AScrlHVelCarry:	.ds 1	; $7A12 '1' when last auto scroll H Velocity fraction accumulation rolled over
+	Level_AScrlVVelCarry:	.ds 1	; $7A13 '1' when last auto scroll V Velocity fraction accumulation rolled over
+	World8Tank_OnTank:	.ds 1	; $7A14 Set when Player is standing on tank surface in Tank level (as opposed to ground); for the illusion the tank is moving through...
 ;;;;;;;;;;;;
 
 
@@ -2565,12 +2564,12 @@ CFIRE_LASER		= $15	; Laser fire
 	CannonFire_X:		.ds 8	; $7A35-$7A3C Cannon fire X
 	CannonFire_Parent:	.ds 8	; $7A3D-$7A44 Tie back to level object index of "parent" object
 
-	Splash_DisTimer:	.ds 1	; Player water splashes are disabled until decrements to zero; set when Player hits any bounce block
+	Splash_DisTimer:	.ds 1	; $7A45 Player water splashes are disabled until decrements to zero; set when Player hits any bounce block
 
 	; For that little "flash" that comes from the shell kill impact!
-	ShellKillFlash_Cnt:	.ds 1	; "Shell Kill Flash" counter
-	ShellKillFlash_Y:	.ds 1	; "Shell Kill Flash" Y
-	ShellKillFlash_X:	.ds 1	; "Shell Kill Flash" X
+	ShellKillFlash_Cnt:	.ds 1	; $7A46 "Shell Kill Flash" counter
+	ShellKillFlash_Y:	.ds 1	; $7A47 "Shell Kill Flash" Y
+	ShellKillFlash_X:	.ds 1	; $7A48 "Shell Kill Flash" X
 
 ; NOTE!! Objects_DisPatChng for OBJECT SLOT 0 - 5 ONLY!
 	Objects_DisPatChng:	.ds 6	; $7A49-$7A4E If set, this object no longer enforces a pattern bank change
@@ -2582,46 +2581,46 @@ CFIRE_LASER		= $15	; Laser fire
 
 	CannonFire_Timer2:	.ds 8	; $7A57-$7A5E Cannon Fire timer (decrements to zero)
 
-	Roulette_Unused7A5F:	.ds 1	; Unused value in Roulette game
-	Roulette_Unused7A5F_Delta:.ds 1	; Delta value added to Roulette_Unused7A5F
+	Roulette_Unused7A5F:	.ds 1	; $7A5F Unused value in Roulette game
+	Roulette_Unused7A5F_Delta:.ds 1	; $7A60 Delta value added to Roulette_Unused7A5F
 
 	Bowser_Tiles:		.ds 2	; $7A61-$7A62 Bowser's detected tiles (to determine what to break)
-	Bowser_Counter1:	.ds 1	; A counter used by Bowser, decrements to zero
-	Bowser_Counter2:	.ds 1	; A counter used by Bowser, decrements to zero 
-	Bowser_Counter3:	.ds 1	; A counter used by Bowser, random setting, decrements to zero
+	Bowser_Counter1:	.ds 1	; $7A63 A counter used by Bowser, decrements to zero
+	Bowser_Counter2:	.ds 1	; $7A64 A counter used by Bowser, decrements to zero 
+	Bowser_Counter3:	.ds 1	; $7A65 A counter used by Bowser, random setting, decrements to zero
 
-	CoinShip_CoinGlowIdx:	.ds 1	; Coin Ship only: Glowing coins palette color index
-	CoinShip_CoinGlowCnt:	.ds 1	; Coin Ship only: Glowing coins palette color counter
+	CoinShip_CoinGlowIdx:	.ds 1	; $7A66 Coin Ship only: Glowing coins palette color index
+	CoinShip_CoinGlowCnt:	.ds 1	; $7A67 Coin Ship only: Glowing coins palette color counter
 
 	SObjBlooperKid_OutOfWater:.ds 8	; $7A68-$7A6F Blooper kid only; if set, Blooper Kid is trying to go out of water
 
 				.ds 2	; $7A70-$7A71 unused
 
-	Object_SplashAlt:	.ds 1	; Used to alternate the "splash slots" 1 and 2 as objects hit the water
+	Object_SplashAlt:	.ds 1	; $7A72 Used to alternate the "splash slots" 1 and 2 as objects hit the water
 
 				.ds 109	; $7A73-$7ADF unused
 
-	Music_Start:		.ds 1	; Music start index (beginning of this song)
-	Music_End:		.ds 1	; Music end index (inclusive last index to play before loop)
-	Music_Loop:		.ds 1	; Music loop index (index to start from when song reaches end)
+	Music_Start:		.ds 1	; $7AE0 Music start index (beginning of this song)
+	Music_End:		.ds 1	; $7AE1 Music end index (inclusive last index to play before loop)
+	Music_Loop:		.ds 1	; $7AE2 Music loop index (index to start from when song reaches end)
 
-	Sound_Octave:		.ds 1	; Used for calculating octave
+	Sound_Octave:		.ds 1	; $7AE3 Used for calculating octave
 
 				.ds 12	; $7AE4-$7AEF unused
 
-	Music_Sq1Bend:		.ds 1	; Alters PAPU_FT1 for bend effects
+	Music_Sq1Bend:		.ds 1	; $7AF0 Alters PAPU_FT1 for bend effects
 
 				.ds 3	; $7AF1-$7AF3 unused
 
-	Music_Sq2Bend:		.ds 1	; Alters PAPU_FT2 for bend effects
+	Music_Sq2Bend:		.ds 1	; $7AF4 Alters PAPU_FT2 for bend effects
 
 				.ds 2	; $7AF5-$7AF6 unused
 
-	Music_RestH_Off:	.ds 1	; Offset added to Music_RestH_Base; typically $00 or $10 (for low time warning on compatible songs)
+	Music_RestH_Off:	.ds 1	; $7AF7 Offset added to Music_RestH_Base; typically $00 or $10 (for low time warning on compatible songs)
 
 				.ds 7	; $7AF8-$7AFE unused
 
-	PAPU_MODCTL_Copy:	.ds 1	; Current PAPU_MODCTL register
+	PAPU_MODCTL_Copy:	.ds 1	; $7AFF Current PAPU_MODCTL register
 
 	Level_ObjIdxStartByScreen:.ds 16	; $7B00-$7B0F Defines the starting index into Level_Objects for each "screen"
 
@@ -2669,28 +2668,28 @@ CFIRE_LASER		= $15	; Laser fire
 	Fireball_HitChkPass:	.ds 2	; $7CEB-$7CEC Count of times Player's fireball has gone through hit check; when it hits 2, fireball poofs
 	PlayerProj_Cnt:		.ds 2	; $7CED-$7CEE Player projectile counter
 
-	Temp_VarNP0:		.ds 1	; A temporary not on page 0
+	Temp_VarNP0:		.ds 1	; $7CEF A temporary not on page 0
 
-	Lakitu_Active:		.ds 1	; Set while a Lakitu is active; keeps Lakitu "alive" even if off-screen etc.
+	Lakitu_Active:		.ds 1	; $7CF0 Set while a Lakitu is active; keeps Lakitu "alive" even if off-screen etc.
 
-	LevelEvent_Cnt:		.ds 1	; General purpose counter used by a couple LevelEvents
-	Vert_Scroll_Off:	.ds 1	; Vertical scroll offset, used for "vibration" effects
-	Level_Vibration:	.ds 1	; While greater than zero, screen vibrates (from impact of heavy fellow)
-	Player_VibeDisable:	.ds 1	; While greater than zero, Player is unable to move (from impact of heavy fellow)
-	Player_TwisterSpin:	.ds 1	; While greater than zero, Player is twirling from sand twister
+	LevelEvent_Cnt:		.ds 1	; $7CF1 General purpose counter used by a couple LevelEvents
+	Vert_Scroll_Off:	.ds 1	; $7CF2 Vertical scroll offset, used for "vibration" effects
+	Level_Vibration:	.ds 1	; $7CF3 While greater than zero, screen vibrates (from impact of heavy fellow)
+	Player_VibeDisable:	.ds 1	; $7CF4 While greater than zero, Player is unable to move (from impact of heavy fellow)
+	Player_TwisterSpin:	.ds 1	; $7CF5 While greater than zero, Player is twirling from sand twister
 
 ; NOTE!! This object var is OBJECT SLOT 0 - 4 ONLY!
 	Objects_HitCount:	.ds 5	; $7CF6-$7CFA Somewhat uncommon "HP" used generally for bosses only (e.g. they take so many fireballs)
 
 
-	RotatingColor_Cnt:	.ds 1	; When non-zero, causes rainbow palettes in the background; $80 bit is used by Koopaling wand grab
+	RotatingColor_Cnt:	.ds 1	; $7CFB When non-zero, causes rainbow palettes in the background; $80 bit is used by Koopaling wand grab
 
 ; Some variables used by the recovered magic wand
-	Wand_FrameCnt:		.ds 1	; A counter that overflows to increment Wand_Frame (added to by the wand's SpecialObj_Var1)
-	Wand_Frame:		.ds 1	; Wand frame
-	Wand_BounceFlag:	.ds 1	; Tracks the recovered wand bounce; odd on first bounce
+	Wand_FrameCnt:		.ds 1	; $7CFC A counter that overflows to increment Wand_Frame (added to by the wand's SpecialObj_Var1)
+	Wand_Frame:		.ds 1	; $7CFD Wand frame
+	Wand_BounceFlag:	.ds 1	; $7CFE Tracks the recovered wand bounce; odd on first bounce
 
-	Player_DebugNoHitFlag:	.ds 1	; UNUSED: (Old debug routine) When set, disables getting hurt (would be toggled by pressing SELECT; see PRG000 $C91B)
+	Player_DebugNoHitFlag:	.ds 1	; $7CFF UNUSED: (Old debug routine) When set, disables getting hurt (would be toggled by pressing SELECT; see PRG000 $C91B)
 
 ; Map_Completions:
 ; Stores "rows" of completed levels or other map alterations (e.g. rock break,
@@ -2728,19 +2727,19 @@ CFIRE_LASER		= $15	; Laser fire
 	Inventory_Items:	.ds 4*7	; $7D80-$7D9B Mario, 4 rows of 7 items 
 	Inventory_Cards:	.ds 3	; $7D9C-$7D9E Mario, 3 cards
 	Inventory_Score:	.ds 3	; $7D9F-$7DA1 Mario, 3 byte score
-	Inventory_Coins:	.ds 1	; Mario's coins
+	Inventory_Coins:	.ds 1	; $7DA2 Mario's coins
 
 	Inventory_Items2:	.ds 4*7	; $7DA3-$7DBE Luigi, 4 rows of 7 items 
 	Inventory_Cards2:	.ds 3	; $7DBF-$7DC1 Luigi, 3 cards
 	Inventory_Score2:	.ds 3	; $7DC2-$7DC4 Luigi, 3 byte score
-	Inventory_Coins2:	.ds 1	; Luigi's coins
+	Inventory_Coins2:	.ds 1	; $7DC5 Luigi's coins
 	Map_Unused7DC6:		.ds 5	; $7DC6-$7DCA? Indexed by Map_Unused738, value used in dead routine in PRG011 @ $A2AF
 
-	Map_GameOver_CursorY:	.ds 1	; Game Over popup cursor Y ($60/$68)
+	Map_GameOver_CursorY:	.ds 1	; $7DCB Game Over popup cursor Y ($60/$68)
 
 				.ds 9	; $7DCC-$7DD4 unused
 
-	Map_PrevMoveDir:	.ds 1	; Last SUCCESSFUL (allowed) movement direction on map R01 L02 D04 U08
+	Map_PrevMoveDir:	.ds 1	; $7DD5 Last SUCCESSFUL (allowed) movement direction on map R01 L02 D04 U08
 
 				.ds 8	; $7DD6-$7DDD unused
 
@@ -2783,26 +2782,26 @@ CARD_WILD	= 8	; UNUSED Wild card (can match any other!)
 	; Interestingly, the Sonic the Hedgehog games implemented this same solidity pattern...
 	Tile_AttrTable:		.ds 8	; $7E94-$7E9B
 
-	Level_UnusedSlopesTS5:	.ds 1	; UNUSED; If set to 2, forces slopes to be enabled for Level_Tileset = 5 (plant infestation)
-	PlantInfest_ACnt_Max:	.ds 1	; Always set to $1A in plant infestation levels, sets max value for animation counter
+	Level_UnusedSlopesTS5:	.ds 1	; $7E9C UNUSED; If set to 2, forces slopes to be enabled for Level_Tileset = 5 (plant infestation)
+	PlantInfest_ACnt_Max:	.ds 1	; $7E9D Always set to $1A in plant infestation levels, sets max value for animation counter
 
 				.ds 24	; $7E9E-$7EB5 unused
 
-	LevelJctBQ_Flag:	.ds 1	; Set to '1' while in a Big Question block area, locks horizontal scrolling
-	Level_JctBackupTileset:	.ds 1	; Level Junction tileset backup
-	Level_AltTileset:	.ds 1	; Level's "alternate" tileset (when you go into bonus pipe, etc.)
+	LevelJctBQ_Flag:	.ds 1	; $7EB6 Set to '1' while in a Big Question block area, locks horizontal scrolling
+	Level_JctBackupTileset:	.ds 1	; $7EB7 Level Junction tileset backup
+	Level_AltTileset:	.ds 1	; $7EB8 Level's "alternate" tileset (when you go into bonus pipe, etc.)
 
 	; The "ORIGINAL" series are so you can switch back after going to a level's "alternate"
-	Level_LayPtrOrig_AddrL:	.ds 1	; ORIGINAL Low byte of address to tile layout
-	Level_LayPtrOrig_AddrH:	.ds 1	; ORIGINAL High byte of address to tile layout
-	Level_ObjPtrOrig_AddrL:	.ds 1	; ORIGINAL Low byte of address to object set
-	Level_ObjPtrOrig_AddrH:	.ds 1	; ORIGINAL High byte of address to object set
+	Level_LayPtrOrig_AddrL:	.ds 1	; $7EB9 ORIGINAL Low byte of address to tile layout
+	Level_LayPtrOrig_AddrH:	.ds 1	; $7EBA ORIGINAL High byte of address to tile layout
+	Level_ObjPtrOrig_AddrL:	.ds 1	; $7EBB ORIGINAL Low byte of address to object set
+	Level_ObjPtrOrig_AddrH:	.ds 1	; $7EBC ORIGINAL High byte of address to object set
 
-	Level_BG_Page1_2:	.ds 1	; Sets which bank the first and second page (2K / 64 8x8 tiles) of BG is using (see Level_BG_Pages1/2)
+	Level_BG_Page1_2:	.ds 1	; $7EBD Sets which bank the first and second page (2K / 64 8x8 tiles) of BG is using (see Level_BG_Pages1/2)
 
-	Map_BorderAttrFromTiles:.ds 44	; $7EBE-$7EC8 (?) Attributes collected from map tiles that get overwritten by border FIXME SIZE UNCERTAIN
+	Map_BorderAttrFromTiles:.ds 44	; $7EBE-$7EE9 (?) Attributes collected from map tiles that get overwritten by border FIXME SIZE UNCERTAIN
 
-	Map_Unused7EEA:		.ds 1	; Unused; Value retrieved from LUT at initialization of world, but never used otherwise
+	Map_Unused7EEA:		.ds 1	; $7EEA Unused; Value retrieved from LUT at initialization of world, but never used otherwise
 	Map_Objects_Y:		.ds 14	; $7EEB-$7EF8, Y coordinate of all map objects
 	Map_Objects_XLo:	.ds 14	; $7EF9-$7F06, X coordinate lo byte of all map objects
 	Map_Objects_XHi:	.ds 14	; $7F07-$7F14, X coordinate hi byte of all map objects
@@ -2830,7 +2829,7 @@ MAPOBJ_TOTALINIT	= $08	; Total number of map objects initialized per world
 MAPOBJ_TOTAL		= $0E	; Total POSSIBLE map objects
 	Map_Objects_IDs:	.ds 14	; $7F15-$7F22
 
-	Map_SprRAMOffDistr:	.ds 1	; A free running counter on the map only which distributes Sprite_RAM offsets to ensure visibility
+	Map_SprRAMOffDistr:	.ds 1	; $7F23 A free running counter on the map only which distributes Sprite_RAM offsets to ensure visibility
 
 	; Map_2PVsGame
 	; Sets which "style" of 2P Vs game will be played
@@ -2846,20 +2845,20 @@ MAPOBJ_TOTAL		= $0E	; Total POSSIBLE map objects
 	;  9: Fighter Fly Only 
 	; 10: Sidestepper Only
 	; 11: Ladder and [?] blocks
-	Map_2PVsGame:		.ds 1
+	Map_2PVsGame:		.ds 1	; $7F24
 
 				.ds 8	; $7F25-$7F2C unused
 
-	Map_Airship_Dest:	.ds 1	; Airship travel destination; 6 X/Y map coordinates defined per world, after that it just sits still
+	Map_Airship_Dest:	.ds 1	; $7F2D Airship travel destination; 6 X/Y map coordinates defined per world, after that it just sits still
 	THouse_OpenByID:	.ds 16	; $7F2E-$7F3D UNUSED would keep track of chests opened for a given Toad House ID (THouse_ID)
 	StatusBar_PMT:		.ds 8	; $7F3E-$7F45, tiles that currently make up the power meter >>>>>>[P]
-	StatusBar_CoinH:	.ds 1	; Status bar tile for coin MSD
-	StatusBar_CoinL:	.ds 1	; Status bar tile for coin LSD
-	StatusBar_LivesH:	.ds 1	; Status bar tile for lives MSD
-	StatusBar_LivesL:	.ds 1	; Status bar tile for lives LSD
+	StatusBar_CoinH:	.ds 1	; $7F46 Status bar tile for coin MSD
+	StatusBar_CoinL:	.ds 1	; $7F47 Status bar tile for coin LSD
+	StatusBar_LivesH:	.ds 1	; $7F48 Status bar tile for lives MSD
+	StatusBar_LivesL:	.ds 1	; $7F49 Status bar tile for lives LSD
 	StatusBar_Score:	.ds 6	; $7F4A-$7F4F Status bar tiles for score
 	StatusBar_Time:		.ds 3	; $7F50-$7F52 Status bar tiles for time remaining
-	Map_MusicBox_Cnt:	.ds 1	; Number of turns remaining until hammer brothers wake up (>= 1 and they're be asleep on the map)
+	Map_MusicBox_Cnt:	.ds 1	; $7F53 Number of turns remaining until hammer brothers wake up (>= 1 and they're be asleep on the map)
 
 	; Store arrays defined by level data as starts after an "alternate" level junction event
 	; Level_JctXLHStart:
@@ -2872,28 +2871,28 @@ MAPOBJ_TOTAL		= $0E	; Total POSSIBLE map objects
 	Level_JctYLHStart:	.ds 16	; $7F54-$7F63 Array of Y / YHi starts
 	Level_JctXLHStart:	.ds 16	; $7F64-$7F73 Array of X / XHi starts
 
-	Object_TileFeet2:	.ds 1	; ? Difference against Object_TileFeet?
-	Object_TileWall2:	.ds 1	; ? Difference against Object_TileWall?
+	Object_TileFeet2:	.ds 1	; $7F74 ? Difference against Object_TileFeet?
+	Object_TileWall2:	.ds 1	; $7F75 ? Difference against Object_TileWall?
 
-	ObjTile_DetYHi:		.ds 1	; Object tile detect Y Hi
-	ObjTile_DetYLo:		.ds 1	; Object tile detect Y Lo
-	ObjTile_DetXHi:		.ds 1	; Object tile detect X Hi
-	ObjTile_DetXLo:		.ds 1	; Object tile detect X Lo
+	ObjTile_DetYHi:		.ds 1	; $7F76 Object tile detect Y Hi
+	ObjTile_DetYLo:		.ds 1	; $7F77 Object tile detect Y Lo
+	ObjTile_DetXHi:		.ds 1	; $7F78 Object tile detect X Hi
+	ObjTile_DetXLo:		.ds 1	; $7F79 Object tile detect X Lo
 
 	Bubble_Cnt:		.ds 3	; $7F7A-$7F7C Bubble counter value (0 = no bubble)
 
 ; NOTE: Object_WatrHit* values are set only once, then WatrHit_IsSetFlag latches
 ; and they will never update again; seems it is leftover debug code or maybe
 ; an unused feature (that an object could respond to a splashdown)
-	WatrHit_IsSetFlag:	.ds 1	; Set when Object_WatrHit* values are stored (but never cleared, so only once!)
+	WatrHit_IsSetFlag:	.ds 1	; $7F7D Set when Object_WatrHit* values are stored (but never cleared, so only once!)
 	Bubble_YHi:		.ds 3	; $7F7E-$7F80 Water Bubble Y Hi
-	Object_WatrHitYHi:	.ds 1	; Y Hi of object that just hit water
+	Object_WatrHitYHi:	.ds 1	; $7F81 Y Hi of object that just hit water
 	Bubble_Y:		.ds 3	; $7F82-$7F84 Water Bubble Y
-	Object_WatrHitY:	.ds 1	; Y of object that just hit water
+	Object_WatrHitY:	.ds 1	; $7F85 Y of object that just hit water
 	Bubble_XHi:		.ds 3	; $7F86-$7F88 Water Bubble X Hi
-	Object_WatrHitXHi:	.ds 1	; X Hi of object that just hit water
+	Object_WatrHitXHi:	.ds 1	; $7F89 X Hi of object that just hit water
 	Bubble_X:		.ds 3	; $7F8A-$7F8C Water Bubble X
-	Object_WatrHitX:	.ds 1	; X of object that just hit water
+	Object_WatrHitX:	.ds 1	; $7F8D X of object that just hit water
 
 	Splash_Counter:		.ds 3	; $7F8E-$7F90 Water splash counter
 	Splash_Y:		.ds 3	; $7F91-$7F93 Water splash X
@@ -2968,24 +2967,24 @@ SOBJ_POOF		= $16 	; Poof
 ; This uses the same space as most of the Auto Scroll data, I'm annoyed that I have to make a section for this
 
 ; After the wand is returned ONLY
-	CineKing_WandState:		.ds 1	; Wand state; 0 = falling, 1 = spinning, 2 = held
-	CineKing_WandFrame:		.ds 1	; Wand frame; 0 to 7
-	CineKing_ToadFrame:		.ds 1	; Toad's frame
-	CineKing_DiagHi:		.ds 1	; Text high address value
+	CineKing_WandState:		.ds 1	; $7A01 Wand state; 0 = falling, 1 = spinning, 2 = held
+	CineKing_WandFrame:		.ds 1	; $7A02 Wand frame; 0 to 7
+	CineKing_ToadFrame:		.ds 1	; $7A03 Toad's frame
+	CineKing_DiagHi:		.ds 1	; $7A04 Text high address value
 
 					.ds 3	; $7A05-$7A07 unused in this context
 
-	CineKing_TimerT:		.ds 1	; Cheering Toad animation Timer
-	CineKing_Timer3:		.ds 1	; Timer decremented every 4 ticks (does not appear to be used!)
+	CineKing_TimerT:		.ds 1	; $7A08 Cheering Toad animation Timer
+	CineKing_Timer3:		.ds 1	; $7A09 Timer decremented every 4 ticks (does not appear to be used!)
 
 					.ds 2	; $7A0A-$7A0B unused in this context
 
-	CineKing_WandX:			.ds 1	; Wand X position
-	CineKing_WandY:			.ds 1	; Wand Y position
-	CineKing_WandXVel:		.ds 1	; Wand X velocity (4.4FP)
-	CineKing_WandYVel:		.ds 1	; Wand Y velocity (4.4FP)
-	CineKing_WandXVel_Frac:		.ds 1	; Wand X velocity fractional accumulator
-	CineKing_WandYVel_Frac:		.ds 1	; Wand Y velocity fractional accumulator
+	CineKing_WandX:			.ds 1	; $7A0C Wand X position
+	CineKing_WandY:			.ds 1	; $7A0D Wand Y position
+	CineKing_WandXVel:		.ds 1	; $7A0E Wand X velocity (4.4FP)
+	CineKing_WandYVel:		.ds 1	; $7A0F Wand Y velocity (4.4FP)
+	CineKing_WandXVel_Frac:		.ds 1	; $7A10 Wand X velocity fractional accumulator
+	CineKing_WandYVel_Frac:		.ds 1	; $7A11 Wand Y velocity fractional accumulator
 
 	; ASSEMBLER BOUNDARY CHECK, END OF $7A12
 .Bound_7A12:	BoundCheck .Bound_7A12, $7A12, Wand Return Cinematic Vars
@@ -4805,13 +4804,13 @@ TILE18_BOUNCEDBLOCK	= $C2	; Temporary tile for when block has been bounced
 	.include "PRG/prg029.asm"
 
 	; This bank is ALWAYS active in ROM, sitting at 8000h-9FFFh
-	; Contains interrupt handling code and other constantly reused functionality
+	; Contains a tiny bit of the NMI, half of the Reset, and a little bit of the IRQ handling code and other constantly reused functionality
 	.bank 30
 	.org $8000
 	.include "PRG/prg030.asm"
 
 	; This bank is ALWAYS active in ROM, sitting at E000h-FFFFh
-	; Contains interrupt handling code and other constantly reused functionality
+	; Contains most of the NMI, half of the Reset, and most of the IRQ handling code and other constantly reused functionality
 	.bank 31
 	.org $E000
 	.include "PRG/prg031.asm"
