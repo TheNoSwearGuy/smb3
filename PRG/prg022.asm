@@ -1692,7 +1692,7 @@ BonusGame_Spade_Text:
 	.byte $FF, BONUS_SPADE
 
 	; N-Spade Instruction
-	; English: "Flip over any two cards" / "and see if they match." / "You can only miss twice!"
+	; English: "Flip over any two cards" / "and see if they match." / "Miss twice and your out!"
 BonusGame_NSpade_Text:
 	;       F    l    i    p         o    v    e    r         a    n    y         t    w    o         c    a    r    d    s
 	.byte $B5, $DB, $D8, $DF, $FE, $DE, $CF, $D4, $CB, $FE, $D0, $DD, $8C, $FE, $CD, $81, $DE, $FE, $D2, $D0, $CB, $D3, $CC, $00
@@ -1700,8 +1700,8 @@ BonusGame_NSpade_Text:
 	;       a    n    d         s    e    e         i    f         t    h    e    y         m    a    t    c    h    .
 	.byte $D0, $DD, $D3, $FE, $CC, $D4, $D4, $FE, $D8, $D5, $FE, $CD, $D7, $D4, $8C, $FE, $DC, $D0, $CD, $D2, $D7, $E9, $00
 
-	;       Y    o    u         c    a    n         o    n    l    y         m    i    s    s         t    w    i    c    e    !
-	.byte $C8, $DE, $CE, $FE, $D2, $D0, $DD, $FE, $DE, $DD, $DB, $8C, $FE, $DC, $D8, $CC, $CC, $FE, $CD, $81, $D8, $D2, $D4, $EA
+	;       M    i    s    s         t    w    i    c    e         a    n    d         y    o    u    r         o    u    t    !
+	.byte $BC, $D8, $CC, $CC, $FE, $CD, $81, $D8, $D2, $D4, $FE, $D0, $DD, $D3, $FE, $8C, $DE, $CE, $CB, $FE, $DE, $CE, $CD, $EA
 
 	; (Terminator, value into Bonus_Round2)
 	.byte $FF, BONUS_NSPADE
@@ -3155,11 +3155,11 @@ PRG022_D250:
 	JSR Roulette_DoFadeOut	 ; Do palette fade out
 
 	LDA Fade_Level
-	BNE PRG022_D52B	 ; If not completely faded out, jump to PRG022_D52B (RTS)
+	BNE PRG022_D25B	 ; If not completely faded out, jump to PRG022_D25B (RTS)
 
 	INC Roulette_RunState	 ; Roulette_RunState = 3
 
-PRG022_D52B:
+PRG022_D25B:
 	RTS		 ; Return
 
 

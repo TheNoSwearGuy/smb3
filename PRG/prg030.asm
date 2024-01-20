@@ -66,7 +66,7 @@ Video_Upd_Table: ; $803E
 	.word Video_DoStatusBar	; $02 - status bar (typical)
 	.word $A000		; $03 - ???
 	.word $A06F		; $04 - ???
-	.word Video_DoStatusBarHM; $05 - status bar appropriate for horizontal mirroring
+	.word Video_DoStatusBarVM; $05 - status bar appropriate for vertical mirroring
 	.word Video_DoPalUpd	; $06 - Updates palettes per values in the $07BE+ Palette_* vars; used during fade in/out routines
 	.word Video_RoulBordAttr; $07 - Roulette sliders border and attribute settings
 	.word Bonus_InstBoxTop	; $08 - Top of Bonus Game instruction box
@@ -169,8 +169,8 @@ Video_DoStatusBarV:
 Video_DoStatusBar:
 	StatusBar $2B00
 
-	; Status bar used when Horizontal Mirroring in effect (Roulette game)
-Video_DoStatusBarHM:
+	; Status bar used when Vertical Mirroring in effect (Roulette game)
+Video_DoStatusBarVM:
 	StatusBar $2300
 
 Video_3CMStarTop:
@@ -677,7 +677,7 @@ PRG030_857E:
 	JSR Reset_PPU_Clear_Nametables
 
 	LDA #$01	 
-	STA MMC3_MIRROR	 ; Set vertical mirroring
+	STA MMC3_MIRROR	 ; Set horizontal mirroring
 
 	LDX Player_Current	 ; X = current Player index
 
@@ -1446,7 +1446,7 @@ PRG030_89D1:
 	INY
 	STY PatTable_BankSel+5
 
-	; Horizontal mirroring
+	; Vertical mirroring
 	LDA #$00
 	STA MMC3_MIRROR
 
@@ -1457,7 +1457,7 @@ PRG030_89D1:
 	LDA #$07
 	JSR Video_Do_Update
 
-	; Status bar suitable for the horizontal mirroring mode
+	; Status bar suitable for the vertical mirroring mode
 	LDA #$05
 	JSR Video_Do_Update
 
@@ -1513,7 +1513,7 @@ PRG030_89D1:
 	LDA #$c0
 	STA Update_Select
 
-	; Vertical mirroring
+	; Horizontal mirroring
 	LDA #$01
 	STA MMC3_MIRROR
 
@@ -1642,7 +1642,7 @@ PRG030_8AE7:
 	LDA #$00
 	STA Update_Request
 
-	; Vertical mirroring
+	; Horizontal mirroring
 	LDA #$01
 	STA MMC3_MIRROR
 
@@ -1654,7 +1654,7 @@ PRG030_8AE7:
 
 	; Level is vertical!
 
-	; Horizontal mirroring
+	; Vertical mirroring
 	LDA #$00
 	STA MMC3_MIRROR
 
@@ -2580,7 +2580,7 @@ PRG030_8FA8:
 
 PRG030_8FB2:
 	LDA #$01	 
-	STA MMC3_MIRROR	 ; Set vertical mirroring
+	STA MMC3_MIRROR	 ; Set horizontal mirroring
 
 	LDX Player_Current	 ; X = LDX Player_Current
 

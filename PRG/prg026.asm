@@ -3072,7 +3072,7 @@ StatusBar_Fill_Score:
 PRG026_B19A:
 	LDA <Temp_Var1	 ; Get LSD -> A
 
-	; I haven't taken time yet to discern this magic yet
+	; Subtract a power of ten across the three "score" bytes.
 	SUB PRG026_B16C,X
 	STA <Temp_Var1	
 	LDA <Temp_Var2	
@@ -3091,7 +3091,7 @@ PRG026_B19A:
 PRG026_B1B8:
 	LDA <Temp_Var1
 
-	; I haven't taken time yet to discern this magic yet
+	; Restore the three "score"-byte values to what they were before the subtraction went to the negatives.
 	ADD PRG026_B16C,X
 	STA <Temp_Var1	
 	LDA <Temp_Var2	

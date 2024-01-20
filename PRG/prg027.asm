@@ -1118,7 +1118,7 @@ Letter_World1:
 
 
 Letter_World2:
-	; "You can stomp on" / "your enemies using" / "Goomba's shoe." / "I have enclosed a" / "jewel that helps" / "    protect you."
+	; "You can stomp on" / "your enemies using" / "Kuribo's shoe." / "I have enclosed a" / "jewel that helps" / "    protect you."
 
 	;       Y    o    u         c    a    n         s    t    o    m    p         o    n    
 	.byte $C8, $DE, $CE, $FE, $D2, $D0, $DD, $FE, $CC, $CD, $DE, $DC, $DF, $FE, $DE, $DD, $00
@@ -1126,8 +1126,8 @@ Letter_World2:
 	;       y    o    u    r         e    n    e    m    i    e    s         u    s    i    n    g
 	.byte $8C, $DE, $CE, $CB, $FE, $D4, $DD, $D4, $DC, $D8, $D4, $CC, $FE, $CE, $CC, $D8, $DD, $D6, $00
 
-	;       G    o    o    m    b    a    '    s         s    h    o    e    .
-	.byte $B6, $DE, $DE, $DC, $D1, $D0, $AB, $CC, $FE, $CC, $D7, $DE, $D4, $E9, $00
+	;       K    u    r    i    b    o    '    s         s    h    o    e    .
+	.byte $BA, $CE, $CB, $D8, $D1, $DE, $AB, $CC, $FE, $CC, $D7, $DE, $D4, $E9, $00
 
 	;       I         h    a    v    e         e    n    c    l    o    s    e    d         a
 	.byte $B8, $FE, $D7, $D0, $CF, $D4, $FE, $D4, $DD, $D2, $DB, $DE, $CC, $D4, $D3, $FE, $D0, $00

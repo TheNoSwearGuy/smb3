@@ -1083,7 +1083,7 @@ PRG031_E7C8:
 	STY Sound_Octave ; Sound_Octave = 1 (interestingly, this sets a "center octave", so at 0 everything is lower, at 2 everything is higher...)
 	PHA		 ; Save original note
 	TAY		 ; Y = Note
-	BMI PRG031_37D9	 ; If Note & $80, skip the octave adjust??
+	BMI PRG031_E7D9	 ; If Note & $80, skip the octave adjust??
 
 	; Note:
 	; Notes are stored as double value for convenience here (spares a shift)
@@ -1097,7 +1097,7 @@ PRG031_E7D1:
 	SUB #24	 	  ; A -= 24 (down an octave)
 	BPL PRG031_E7D1	  ; While above zero, loop! 
 
-PRG031_37D9:
+PRG031_E7D9:
 	ADD #24	 	  ; A += 24 (recover from last subtraction)
 	TAY		  ; Y = A (Y is now the offset into the LUT to get the base frequency for this note)
 
@@ -1508,14 +1508,14 @@ PRG031_F4BD:
 
 PRG031_F4C4:
 	CMP #$00	 ; 
-	BNE PRG031_F4D5	 ; If Update_Select <> $00 FIXME, jump to PRG031_F4D5
+	BNE PRG031_F4D5	 ; If Update_Select <> $00 (Stage Entry Transition), jump to PRG031_F4D5
 
 	; MMC3 event
 	LDA #MMC3_8K_TO_PRG_A000	; Changing PRG ROM at A000
 	STA MMC3_COMMAND 		; Set MMC3 command
 	LDA #26	 			; Page 26
 	STA MMC3_PAGE	 		; Set MMC3 page
-	JMP PRG031_F610	 		; 
+	JMP UpdSel_StageEntryTransition	; Jump to UpdSel_StageEntryTransition
 
 PRG031_F4D5:
 	CMP #$a0	 ; 
@@ -1633,7 +1633,7 @@ PRG031_F567:
 
 	INC <Counter_1	 ; Simply increments every frame, used for timing
 
-	; Not sure what this is for
+	; Prevent an interrupt from corrupting a bank swap.
 	LDA PAGE_CMD
 	STA MMC3_COMMAND
 
@@ -1726,10 +1726,7 @@ PRG031_F5D3:
 	CLI		 ; Enable maskable interrupts
 	JMP PRG031_F55B	 ; Jump to PRG031_F55B
 
-PRG031_F610:
-
-	; Following the "Normal" Update path...
-
+UpdSel_StageEntryTransition:
 	LDA #$00	 ; A = 0
 	STA PPU_CTL2	 ; Hide sprites and bg (most importantly)
 	STA PPU_SPR_ADDR ; Resets to sprite 0 in memory
@@ -2031,10 +2028,10 @@ PRG031_F7DF:
 
 	; Flags for vertical World 7 speciality levels
 	LDA Level_7Vertical
-	BEQ IntIRQ_Vertical	 ; For vertical type levels
-	JMP IntIRQ_Standard	 ; Otherwise, just do the standard thing (status bar used in level and map)
+	BEQ IntIRQ_Standard	 ; For standard type levels
+	JMP IntIRQ_Vertical	 ; Otherwise, jump to IntIRQ_Vertical
 
-IntIRQ_Vertical:
+IntIRQ_Standard:
 	STA MMC3_IRQENABLE ; Active IRQ
 	NOP		 ; 
 	NOP		 ; 
@@ -2173,7 +2170,7 @@ IntIRQ_Finish_NoDis:
 
 	RTI		 ; End of IRQ interrupt!
 
-IntIRQ_Standard:	; $F8DB
+IntIRQ_Vertical:	; $F8DB
 	STA MMC3_IRQENABLE ; Enable IRQ generation
 
 	; Some kind of delay loop?
@@ -2843,22 +2840,17 @@ PRG031_FCFF:
 
 	LDA #$2b	 ; A = $2B (Not vertical)
 
-	LDX Level_7Vertical
-	BEQ PRG031_FD1C	 ; If level is not vertical, jump to PRG031_FD1C
-
-	LDA #$27	 ; A = $27 (Vertical)
-PRG031_FD1C: 
 	LDX Level_Tileset
 	CPX #16	 
-	BEQ PRG031_FD27	 ; If Level_Tileset = 16 (Spade game), jump to PRG031_FD27
+	BEQ PRG031_FD20	 ; If Level_Tileset = 16 (Spade game), jump to PRG031_FD20
 
 	CPX #17	
-	BNE PRG031_FD29	 ; If Level_Tileset = 17 (N-Spade), jump to PRG031_FD29
+	BNE PRG031_FD22	 ; If Level_Tileset = 17 (N-Spade), jump to PRG031_FD22
 
-PRG031_FD27:
+PRG031_FD20:
 	LDA #$23	 ; A = $23 (Spade game)
 
-PRG031_FD29:
+PRG031_FD22:
 
 	; Configure graphics buffer
 	STA Graphics_Buffer,Y
@@ -2890,21 +2882,21 @@ Player_GetCard:
 	PHA		 ; Save which card we're getting
 
 	LDY Player_Current 
-	BEQ PRG031_FD4C	 ; If Player is Mario, jump to PRG031_FD4C
+	BEQ PRG031_FD45	 ; If Player is Mario, jump to PRG031_FD45
 
 	LDY #(Inventory_Cards2 - Inventory_Cards)
 
-PRG031_FD4C:
+PRG031_FD45:
 	LDA Inventory_Cards,Y
-	BEQ PRG031_FD67	 ; If this card is empty, jump to PRG031_FD67
+	BEQ PRG031_FD60	 ; If this card is empty, jump to PRG031_FD60
 
 	INY		 ; Y++
 	CPY #$03
-	BEQ PRG031_FD5A	 ; If Mario's cards are full, jump to PRG031_FD5A
+	BEQ PRG031_FD53	 ; If Mario's cards are full, jump to PRG031_FD53
 	CPY #(Inventory_Cards2 - Inventory_Cards + 3)
-	BNE PRG031_FD4C	 ; If Luigi's cards are NOT full, jump to PRG031_FD4C
+	BNE PRG031_FD45	 ; If Luigi's cards are NOT full, jump to PRG031_FD45
 
-PRG031_FD5A:
+PRG031_FD53:
 
 	; Rotate cards through
 	LDA Inventory_Cards-2,Y
@@ -2914,7 +2906,7 @@ PRG031_FD5A:
 
 	DEY		 ; Y--
 
-PRG031_FD67:
+PRG031_FD60:
 	PLA		 ; Restore the card we're going to get
 	STA Inventory_Cards,Y	 ; Store the new card
 
@@ -2931,21 +2923,21 @@ Player_GetItem:
 	PHA		 ; Save input item
 
 	LDY Player_Current
-	BEQ PRG031_FD74	 ; If not Luigi, jump to PRG031_FD74
+	BEQ PRG031_FD6D	 ; If not Luigi, jump to PRG031_FD6D
 
 	LDY #(Inventory_Items2 - Inventory_Items)	; Luigi inventory offset
 
-PRG031_FD74:
+PRG031_FD6D:
 	LDX #(Inventory_Cards - Inventory_Items - 1)	; X = total inventory slots
-PRG031_FD76:
+PRG031_FD6F:
 	LDA Inventory_Items,Y
-	BEQ PRG031_FD7F	 ; If this slot is empty, jump to PRG031_FD7F
+	BEQ PRG031_FD78	 ; If this slot is empty, jump to PRG031_FD78
 
 	INY		 ; Y++ (next slot over)
 	DEX		 ; X-- (one less item slot total)
-	BNE PRG031_FD76	 ; If X > 0, loop!
+	BNE PRG031_FD6F	 ; If X > 0, loop!
 
-PRG031_FD7F:
+PRG031_FD78:
 	PLA		 ; Restore the target item
 	STA Inventory_Items,Y	 ; Give it to the Player!
 
@@ -2959,10 +2951,10 @@ PRG031_FD7F:
 ; the X/Y values in with $F8 and $01, essentially making
 ; them all invisible until actually needed
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Sprite_RAM_Clear:	; $FD84
+Sprite_RAM_Clear:	; $FD7D
 	LDY #$00	 ; Y = 0
 
-PRG031_FD86:
+PRG031_FD7F:
 	LDA #$f8	 	; A = $F8 
 	STA Sprite_RAM,  Y	; Next X value
 	LDA #$01	 	; A = $01
@@ -2971,7 +2963,7 @@ PRG031_FD86:
 	INY		 ; 
 	INY		 ; 
 	INY		 ; Y += 4
-	BNE PRG031_FD86	 ; While Y does not equal zero (covers all 256 bytes)
+	BNE PRG031_FD7F	 ; While Y does not equal zero (covers all 256 bytes)
 
 	RTS		 ; Return
 
@@ -2983,7 +2975,7 @@ PRG031_FD86:
 ; that the PPU is displaying sprites in PT2, but interestingly
 ; does not set them to 8x16 ??
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Scroll_PPU_Reset:	; $FD97
+Scroll_PPU_Reset:	; $FD90
 	LDA #$00	 ; 
 	STA PPU_SCROLL	 ; Horizontal scroll = 0
 	STA <Horz_Scroll ; Horz_Scroll = 0
@@ -2999,7 +2991,7 @@ Scroll_PPU_Reset:	; $FD97
 ; Resets PPU_CTL2 and clears both nametables and also resets
 ; the graphics buffer in case any updates were pending...
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Reset_PPU_Clear_Nametables:	; $FDA9
+Reset_PPU_Clear_Nametables:	; $FDA2
 	; Reset graphics buffer
 	LDA #$00	  
 	STA Graphics_BufCnt
@@ -3020,7 +3012,7 @@ Reset_PPU_Clear_Nametables2:
 ; Clears the PPU_CTL2_Copy variable and also the
 ; PPU_CTL2 register itself 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Clear_PPU_CTL2_Copy:	; $FDBF
+Clear_PPU_CTL2_Copy:	; $FDB8
 	LDA #$00	 
 	STA <PPU_CTL2_Copy	; Clears PPU_CTL2_Copy (though sprites/BG overridden as visible anyway)
 	STA PPU_CTL2	 	; At this point, clearing PPU_CTL2 altogether, though likely it will shortly be updated
@@ -3034,7 +3026,7 @@ Clear_PPU_CTL2_Copy:	; $FDBF
 ; the initial value of A ($20 for NT 0, $28 for NT2, and 
 ; technically the other two could be specified as well)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Clear_Nametable:	; $FDC7:
+Clear_Nametable:	; $FDC0:
 	STA <Temp_Var1		; Save A
 
 	LDA PPU_STAT	 	; 
@@ -3050,12 +3042,12 @@ Clear_Nametable:	; $FDC7:
 	LDX #$04	 ; X = $04
 	LDY #$00	 ; Y = $00
 	LDA #$fc	 ; A = $FC
-PRG031_FDE1:
+PRG031_FDDA:
 	STA PPU_VRAM_DATA	 ; Write $FC to NT
 	DEY		 ; Y--
-	BNE PRG031_FDE1	 ; While <> 0, loop (will write 256 times)
+	BNE PRG031_FDDA	 ; While <> 0, loop (will write 256 times)
 	DEX		 ; X--
-	BNE PRG031_FDE1	 ; While <> 0, loop (will write 4 times)
+	BNE PRG031_FDDA	 ; While <> 0, loop (will write 4 times)
 
 	LDA <Temp_Var1	 ; Retrieve initial A value again
 	ADD #$03	 	; A += 3 (moving to attribute table)
@@ -3067,10 +3059,10 @@ PRG031_FDE1:
 	; unnecessary overrun... probably just a simpler loop to code.)
 	LDY #$40	 ; Y = $40 
 	LDA #$00	 ; A = 0
-PRG031_FDFB:
+PRG031_FDF4:
 	STA PPU_VRAM_DATA	 ; Write $00 to AT
 	DEY		 ; Y--
-	BNE PRG031_FDFB	 ; While Y <> 0, loop (will write 64 times)
+	BNE PRG031_FDF4	 ; While Y <> 0, loop (will write 64 times)
 
 	RTS		 ; Return
 
@@ -3081,7 +3073,7 @@ PRG031_FDFB:
 ; This subroutine sets ClearPattern over half a nametable, which
 ; is the initial value of A ($20 for NT 0, $28 for NT2)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Clear_Nametable_Short:	; $FE02
+Clear_Nametable_Short:	; $FDFB
 	LDA PPU_STAT	 	; 
 	LDA #$00	 	; 
 	STA PPU_CTL1		; Most likely most importantly to prevent any more Resets
@@ -3094,41 +3086,41 @@ Clear_Nametable_Short:	; $FE02
 	LDX #$03	 ; X = 3
 	LDY #$c0	 ; Y = $C0
 	LDA ClearPattern	 ; A = ClearPattern
-PRG031_FE1B:
+PRG031_FE14:
 	STA PPU_VRAM_DATA	; Write this pattern
 
 	DEY		 ; Y--
-	BNE PRG031_FE1B	 ; While Y <> 0, loop
+	BNE PRG031_FE14	 ; While Y <> 0, loop
 
 	DEX		 ; X--
-	BNE PRG031_FE1B	 ; While X <> 0, loop!
+	BNE PRG031_FE14	 ; While X <> 0, loop!
 
 	RTS		 ; Return
 
 ; FIXME: Anybody want to claim this?
 ; Seems to clear the screen based on specific Vert_Scroll values
-PRG031_FE25:	.byte $00, $30, $70, $B0, $EF
+PRG031_FE1E:	.byte $00, $30, $70, $B0, $EF
 
 	; High and Low VRAM Addresses
-PRG031_FE2A:	.byte $20, $20, $21, $22, $28
-PRG031_FE2F:	.byte $00, $C0, $C0, $C0, $00
+PRG031_FE23:	.byte $20, $20, $21, $22, $28
+PRG031_FE28:	.byte $00, $C0, $C0, $C0, $00
 
-; $FE34
+; $FE2D
 	LDY #$04	; Y = 4
 	LDA <Vert_Scroll
-PRG031_FE38:
-	CMP PRG031_FE25,Y
-	BEQ PRG031_FE40	 ; If Vert_Scroll = this value, jump to PRG031_FE40
+PRG031_FE31:
+	CMP PRG031_FE1E,Y
+	BEQ PRG031_FE39	 ; If Vert_Scroll = this value, jump to PRG031_FE39
 
 	DEY		 ; Y--
-	BPL PRG031_FE38	 ; While Y >= 0, loop
+	BPL PRG031_FE31	 ; While Y >= 0, loop
 
-PRG031_FE40:
+PRG031_FE39:
 
 	; Load FIXME values -> Temp_Var1/2
-	LDA PRG031_FE2A,Y
+	LDA PRG031_FE23,Y
 	STA <Temp_Var1
-	LDA PRG031_FE2F,Y
+	LDA PRG031_FE28,Y
 	STA <Temp_Var2
 
 	LDY #$00	 ; Y = 0
@@ -3136,35 +3128,35 @@ PRG031_FE40:
 
 	LDA <Vert_Scroll
 	CMP #$ef
-	BEQ PRG031_FE58	 ; If Vert_Scroll = $EF (bottom of horizontal scroll level), jump to PRG031_FE58
+	BEQ PRG031_FE51	 ; If Vert_Scroll = $EF (bottom of horizontal scroll level), jump to PRG031_FE51
 
 	LDY #$20	 ; Y = $20
 	LDX #$04	 ; X = 4
 
-PRG031_FE58:
+PRG031_FE51:
 	LDA PPU_STAT
 
 	; Disable display
 	LDA #$00
 	STA PPU_CTL1
-PRG031_FE60:
+PRG031_FE59:
 	; Set VRAM High/Low Addresses
 	LDA <Temp_Var1
 	STA PPU_VRAM_ADDR
 	LDA <Temp_Var2
 	STA PPU_VRAM_ADDR
 
-PRG031_FE6A:
+PRG031_FE63:
 	LDA ClearPattern	 ; Get the clearing pattern
 	STA PPU_VRAM_DATA	 ; Store it
 
 	DEY		 ; Y--
-	BNE PRG031_FE76	 ; If Y <> 0, jump to PRG031_FE76
+	BNE PRG031_FE6F	 ; If Y <> 0, jump to PRG031_FE6F
 
 	DEX		 ; X--
-	BEQ PRG031_FE98	 ; If X = 0, jump to PRG031_FE98 (RTS)
+	BEQ PRG031_FE91	 ; If X = 0, jump to PRG031_FE91 (RTS)
 
-PRG031_FE76:
+PRG031_FE6F:
 
 	; Next VRAM byte
 	LDA <Temp_Var2
@@ -3175,11 +3167,11 @@ PRG031_FE76:
 	STA <Temp_Var1
 
 	CMP #$23
-	BNE PRG031_FE6A	 ; If haven't possibly hit the end of the nametable, jump to PRG031_FE6A
+	BNE PRG031_FE63	 ; If haven't possibly hit the end of the nametable, jump to PRG031_FE63
 
 	LDA <Temp_Var2
 	CMP #$c0
-	BNE PRG031_FE6A	 ; If haven't hit the end of the nametable, jump to PRG031_FE6A
+	BNE PRG031_FE63	 ; If haven't hit the end of the nametable, jump to PRG031_FE63
 
 	; Set address to second nametable
 	LDA #$28
@@ -3187,9 +3179,9 @@ PRG031_FE76:
 	LDA #$00
 	STA <Temp_Var2
 
-	JMP PRG031_FE60	; Loop!
+	JMP PRG031_FE59	; Loop!
 
-PRG031_FE98:
+PRG031_FE91:
 	RTS		 ; Return
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; DynJump
@@ -3209,7 +3201,7 @@ PRG031_FE98:
 ; This works since the return address is gobbled up by DynJump, so you will
 ; never return to the "JSR DynJump" line!
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-DynJump:	; $FE99
+DynJump:	; $FE92
 	ASL A		; A << 1 (turned into an index)
 	TAY		; Y = A
 
@@ -3240,7 +3232,7 @@ DynJump:	; $FE99
 ; This subroutine reads the status of both joypads 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-Read_Joypads_UnkTable:
+Read_Joypads_Mask_LR_UD_Table:
 	.byte	$00, $01, $02, $00, $04, $05, $06, $04, $08, $09, $0A, $08, $00, $01, $02, $00
 
 Read_Joypads:
@@ -3248,17 +3240,17 @@ Read_Joypads:
 	; Read joypads
 	LDY #$01	 ; Joypad 2 then 1
 
-PRG031_FEC0:
+PRG031_FEB9:
 	JSR Read_Joypad	 ; Read Joypad Y
 
 	; FIXME: I THINK this is for switch debouncing??
-PRG031_FEC3:
+PRG031_FEBC:
 	LDA <Temp_Var1	 ; Pull result out of $00 -> A
 	PHA		 ; Push A
 	JSR Read_Joypad	 ; Read Joypad
 	PLA		 ; Pull A
 	CMP <Temp_Var1	 ; Check if same
-	BNE PRG031_FEC3	 ; If not, do it again
+	BNE PRG031_FEBC	 ; If not, do it again
 
 	ORA <Temp_Var2	 ; 
 	PHA		 ; Push A
@@ -3267,7 +3259,7 @@ PRG031_FEC3:
 	PLA		 ; Pull A
 	AND #$f0	 ; A &= $F0
 
-	ORA Read_Joypads_UnkTable,X	 ; FIXME: A |= Read_Joypads_UnkTable[X]
+	ORA Read_Joypads_Mask_LR_UD_Table,X	 ; A |= Read_Joypads_Mask_LR_UD_Table[X]
 	PHA		 	; Save A
 	STA <Temp_Var3	 	; Temp_Var3 = A
 	EOR Controller1,Y	; 
@@ -3278,11 +3270,11 @@ PRG031_FEC3:
 	STA Controller1,Y	; 
 	STA <Pad_Holding	 ; 
 	DEY		 ; Y-- 
-	BPL PRG031_FEC0	 ; If Y hasn't gone negative (it should just now be 0), Read other joypad
+	BPL PRG031_FEB9	 ; If Y hasn't gone negative (it should just now be 0), Read other joypad
 
 	; Done reading joypads
 	LDY Player_Current	 
-	BEQ PRG031_FF11	 ; If Player_Curren = 0 (Mario), jump to PRG031_FF11
+	BEQ PRG031_FF0A	 ; If Player_Current = 0 (Mario), jump to PRG031_FF0A
 
 	LDA <Controller1
 	AND #$30
@@ -3299,7 +3291,7 @@ PRG031_FEC3:
 	ORA <Temp_Var1
 	STA <Pad_Input
 
-PRG031_FF11:
+PRG031_FF0A:
 	RTS		 ; Return
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -3310,7 +3302,7 @@ PRG031_FF11:
 ; Register Y should be 0 for Joypad 1 and 1 for Joypad 2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-Read_Joypad:	; $FF12
+Read_Joypad:	; $FF0B
 
 	; Joypad reading is weird, and actually requires 8 accesses to the joypad I/O to get all the buttons:
 	; Read #1: A 
@@ -3343,6 +3335,13 @@ Read_Joypad_Loop:
 	RTS		 ; Return
 
 	; Most likely filler / reserved space here
+	.byte $ff
+	.byte $ff
+	.byte $ff
+	.byte $ff
+	.byte $ff
+	.byte $ff
+	.byte $ff
 	.byte $ff
 	.byte $ff
 	.byte $ff
@@ -3428,7 +3427,7 @@ PRG031_FF80:
 	BNE PRG031_FF80	 ; While X > 0, loop
 
 	LDA #$01	 ; 
-	STA MMC3_MIRROR	 ; MMC3 command for Vertical mirroring
+	STA MMC3_MIRROR	 ; MMC3 command for Horizontal mirroring
 	LDA #$80	 ; 
 	STA MMC3_SRAM_EN ; Re-enable MMC3 SRAM (?)
 

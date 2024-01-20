@@ -286,10 +286,10 @@ Video_Upd_Table2:
 	.word PRG025_CEAE		; $38 - 
 	.word PRG025_CEB6		; $39 - 
 	.word PRG025_CEC5		; $3A - 
-	.word PRG025_CEE2		; $3B - 
-	.word PRG025_CEFF		; $3C - 
-	.word PRG025_CF0A		; $3D - 
-	.word PRG025_CF20		; $3E - 
+	.word PRG025_CEE1		; $3B - 
+	.word PRG025_CEFE		; $3C - 
+	.word PRG025_CF09		; $3D - 
+	.word PRG025_CF1F		; $3E - 
 	.word PRG025_CF43		; $3F - 
 	.word PRG025_CF6B		; $40 - 
 	.word PRG025_CF8A		; $41 - 
@@ -301,9 +301,9 @@ Video_Upd_Table2:
 	.word PRG025_D009		; $47 - 
 	.word PRG025_D01F		; $48 - 
 	.word PRG025_D035		; $49 - 
-	.word PRG025_D044		; $4A - 
-	.word PRG025_D051		; $4B - 
-	.word PRG025_D059		; $4C - 
+	.word PRG025_D04C		; $4A - 
+	.word PRG025_D059		; $4B - 
+	.word PRG025_D061		; $4C - 
 	.word EndSeq_World1Pal		; $4D - Ending pic World 1 full palette
 	.word EndSeq_World2Pal		; $4E - Ending pic World 2 full palette
 	.word EndSeq_World3Pal		; $4F - Ending pic World 3 full palette
@@ -318,11 +318,11 @@ Video_Upd_Table2:
 	.word EndSeq_Fade2		; $58 - Princess's chamber "fade in/out" effect part 2
 	.word EndSeq_Fade1		; $59 - Princess's chamber "fade in/out" effect part 1
 	.word EndSeq_Fade0		; $5A - Princess's chamber "fade out" lead (then goes back through the above)
-	.word PRG025_D4B5		; $5B - ?? Sprite palette
+	.word PRG025_D4BD		; $5B - ?? Sprite palette
 	.word EndSeq_CurtainFadeIn1	; $5C - Curtain fade in effect part 1
 	.word EndSeq_CurtainFadeIn2	; $5D - Curtain fade in effect part 2
 	.word EndSeq_CurtainFadeIn3	; $5E - Curtain fade in effect part 3
-	.word PRG025_D505		; $5F - 
+	.word PRG025_D50D		; $5F - 
 
 Title_Load_Palette:
 	; This is the initial palette applied to the title screen
@@ -836,7 +836,7 @@ PRG025_CDD1:
 PRG025_CDE7:
 	.byte $28, $E3, $07 ; $CDDA - $CDE9
 	.byte $DE, $F4, $EF, $F1, $E3, $5C, $78, $29, $24, $06, $E3, $E4, $F8, $E4, $EF, $F9 ; $CDEA - $CDF9
-	.byte $29, $67, $04, $F1, $E0, $F3, $E3, $00
+	.byte $29, $67, $04, $E9, $EA, $F1, $F1, $00
 
 PRG025_CE02:
 	.byte $2A, $65, $01, $58, $2A, $82, $05, $58 ; $CDFA - $CE09
@@ -861,7 +861,7 @@ PRG025_CE57:
 	.byte $5C, $DF, $00
 
 PRG025_CE6D:
-	.byte $2A, $89, $0A, $DE, $E0, $F9, $E4, $EF, $5C, $F1, $E0, $F3, $E3 ; $CE6A - $CE79
+	.byte $2A, $89, $0A, $F4, $E2, $E4, $E0, $F3, $5C, $F8, $EA, $E3, $E4 ; $CE6A - $CE79
 	.byte $00
 
 PRG025_CE7B:
@@ -873,7 +873,7 @@ PRG025_CE91:
 	.byte $BA, $01, $7A, $00
 
 PRG025_CE9E:
-	.byte $2A, $19, $05, $E8, $EA, $E0, $F3, $F9, $2A, $59, $04, $F1 ; $CE9A - $CEA9
+	.byte $2A, $19, $03, $E1, $EA, $E8, $2A, $58, $06, $EA, $F8, $F1 ; $CE9A - $CEA9
 	.byte $E0, $F3, $E3, $00
 
 PRG025_CEAE:
@@ -884,26 +884,26 @@ PRG025_CEB6:
 	.byte $FF, $FF, $BB, $2B, $EA, $04, $AF, $AF, $AF, $AB, $00
 
 PRG025_CEC5:
-	.byte $28, $F6, $07, $DE, $F4 ; $CEBA - $CEC9
-	.byte $EF, $F1, $E3, $5C, $7B, $29, $36, $08, $F8, $F0, $FE, $5C, $F1, $E0, $F3, $E3 ; $CECA - $CED9
+	.byte $28, $F6, $07, $DE, $F4 ; $CEBA - $CEC8
+	.byte $EF, $F1, $E3, $5C, $7B, $29, $36, $07, $F9, $E9, $E4, $5C, $F8, $F0, $FE ; $CECA - $CED8
 	.byte $28, $D0, $04, $C0, $C1, $C2, $C3, $00
 
-PRG025_CEE2:
+PRG025_CEE1:
 	.byte $28, $F0, $04, $C4, $C5, $C6, $C7, $29 ; $CEDA - $CEE9
 	.byte $99, $04, $C0, $C1, $C2, $C3, $29, $B9, $04, $C4, $C5, $C6, $C7, $2A, $F9, $04 ; $CEEA - $CEF9
 	.byte $D0, $D1, $D2, $D3, $00
 
-PRG025_CEFF:
+PRG025_CEFE:
 	.byte $28, $F6, $07, $DE, $F4, $EF, $F1, $E3, $5C, $7B, $00 ; $CEFA - $CF09
 
-PRG025_CF0A:
+PRG025_CF09:
 	.byte $2B, $D1, $04, $5A, $FA, $FA, $9A, $2B, $D9, $04, $FF, $7F, $5F, $99, $2B, $E1 ; $CF0A - $CF19
 	.byte $04, $55, $55, $55, $99, $00
 
-PRG025_CF20:
+PRG025_CF1F:
 	.byte $28, $E3, $07, $DE, $F4, $EF, $F1, $E3, $5C, $7C ; $CF1A - $CF29
-	.byte $2A, $51, $08, $EA, $E2, $E4, $5C, $F1, $E0, $F3, $E3, $2A, $20, $0A, $01, $0D ; $CF2A - $CF39
-	.byte $01, $0D, $01, $0D, $01, $0D, $01, $0D, $00
+	.byte $2A, $51, $09, $EA, $E2, $E4, $E3, $5C, $F1, $E0, $F3, $E3, $2A, $20, $0A, $01 ; $CF2A - $CF39
+	.byte $0D, $01, $0D, $01, $0D, $01, $0D, $01, $0D, $00
 
 PRG025_CF43:
 	.byte $2A, $40, $0A, $40, $4D, $40, $4D ; $CF3A - $CF49
@@ -930,7 +930,7 @@ PRG025_CFB2:
 PRG025_CFC8:
 	.byte $2A, $43 ; $CFBA - $CFC9
 	.byte $07, $DE, $F4, $EF, $F1, $E3, $5C, $7D, $2A, $84, $09, $F5, $EA, $F5, $E4, $5C ; $CFCA - $CFD9
-	.byte $F1, $E0, $F3, $E3, $29, $9A, $04, $CA, $CB, $CC, $CD, $29, $BA, $04, $DA, $DB ; $CFDA - $CFE9
+	.byte $F2, $E0, $FF, $E4, $29, $9A, $04, $CA, $CB, $CC, $CD, $29, $BA, $04, $DA, $DB ; $CFDA - $CFE9
 	.byte $DC, $DD, $00
 
 PRG025_CFED:
@@ -950,17 +950,18 @@ PRG025_D01F:
 	.byte $FF, $FF, $BB, $2B, $D9, $04, $FF, $FF, $FF, $BB, $00
 
 PRG025_D035:
-	.byte $29, $63, $04, $E3, $E0 ; $D02A - $D039
-	.byte $EF, $F0, $29, $A3, $04, $F1, $E0, $F3, $E3, $00
+	.byte $29, $62, $06, $E2, $E0 ; $D02A - $D039
+	.byte $F8, $F9, $F1, $E4, $29, $84, $02, $F4, $E5, $29, $A3, $05, $F0, $F4, $F4, $F5
+	.byte $E0, $00
 
-PRG025_D044:
+PRG025_D04C:
 	.byte $29, $7A, $05, $DE, $F4, $EF ; $D03A - $D049
 	.byte $F1, $E3, $29, $9C, $01, $7E, $00
 
-PRG025_D051:
+PRG025_D059:
 	.byte $2B, $CA, $04, $6A, $5A, $5A, $5A, $00
 
-PRG025_D059:
+PRG025_D061:
 	.byte $2B ; $D04A - $D059
 	.byte $D2, $04, $66, $55, $55, $55, $2B, $DA, $04, $66, $55, $55, $55, $00
 
@@ -1268,7 +1269,7 @@ EndSeq_Fade0:
 	; Terminator
 	.byte $00
 
-PRG025_D4B5:
+PRG025_D4BD:
         vaddr $3F10
 	.byte $10, $0F, $21, $30, $0F, $0F, $11, $10, $0F, $0F, $12, $00, $0F, $0F, $0C, $0F
 	.byte $0F
@@ -1302,7 +1303,7 @@ EndSeq_CurtainFadeIn3:
 	; Terminator
 	.byte $00
 
-PRG025_D505:
+PRG025_D50D:
         vaddr $3F00
 	.byte $10, $0F, $0F, $30, $16, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F
 	.byte $0F

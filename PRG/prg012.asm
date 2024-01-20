@@ -357,16 +357,16 @@ PRG012_A535:
 PRG012_A54A:
 	; Mini-fortresses or others here
 	LDX #(MRT_END-Map_Removable_Tiles-1)	; X = 7
-PRG031_A54C:
+PRG012_A54C:
 	CMP Map_Removable_Tiles,X	; Check this tile
-	BEQ PRG031_A556	 		; If it matches this index, jump to PRG031_A556
+	BEQ PRG012_A556	 		; If it matches this index, jump to PRG012_A556
 	DEX		 		; X--
-	BPL PRG031_A54C	 		; While X >=0, loop!
+	BPL PRG012_A54C	 		; While X >=0, loop!
 	BMI PRG012_A55C	 		; If matched nothing, jump to PRG012_A55C
 
-PRG031_A556:
+PRG012_A556:
 	LDA Map_RemoveTo_Tiles,X	; Get the replacement tile
-	JMP PRG031_A581			; Jump to PRG031_A581
+	JMP PRG012_A581			; Jump to PRG012_A581
 
 PRG012_A55C:
 	LDA <Temp_Var2
@@ -402,7 +402,7 @@ PRG012_A57C:
 
 	LDA Map_CompleteByML_Tiles,X	; Get proper completion tile
 
-PRG031_A581:
+PRG012_A581:
 	LDY <Temp_Var5		 ; Y = Temp_Var5 (offset to tile)
 	STA [Map_Tile_AddrL],Y	 ; Set proper completion tile!
 
